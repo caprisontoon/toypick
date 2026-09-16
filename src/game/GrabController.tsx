@@ -2,7 +2,9 @@ import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { CLAW, DIFFICULTY, GRIP, PHYSICS, TIMING, TOY_TYPE_MAP } from '../config/gameConfig'
+import { computeSlipChance } from '../config/odds'
 import { useGameStore } from '../store/gameStore'
+import { useAdminStore } from '../store/adminStore'
 import { refs, type GrabPhase } from '../store/refs'
 import { toyRegistry } from './Toys'
 import { sound } from '../audio/soundManager'
@@ -217,16 +219,19 @@ export function GrabController() {
               a.vel.x = a.vel.z = 0
               a.slipped = false
               a.slipReason = null
-              // Grip roll: aim accuracy and difficulty drive the slip chance; pity/steady-grip disable it
+              // 그립 판정: 관리자가 설정한 확률에 조준 정확도 · 채널 · 인형 계수를 반영
               const ecc = a.preGrab.id === candidate ? a.preGrab.ecc : 1
-              const diff = GRIP.difficultyFactor[store.settings.difficulty]
               const typeFactor =
                 TOY_TYPE_MAP[store.toys.find((toy) => toy.id === candidate)?.type ?? 'shiba']
                   .slipFactor
-              const slipChance =
-                store.settings.steadyGrip || refs.slipStreak >= GRIP.pityAfter
-                  ? 0
-                  : Math.min(0.85, (GRIP.base + GRIP.eccentric * ecc) * diff * typeFactor)
+              const slipChance = computeSlipChance({
+                odds: useAdminStore.getState().odds,
+                channel: store.channel,
+                ecc,
+                slipFactor: typeFactor,
+                slipStreak: refs.slipStreak,
+                steadyGrip: store.settings.steadyGrip,
+              })
               // Slip window 0.15~0.75, biased toward the ascent and early carry (claw not over the chute yet, so a slip always falls back into the pit)
               if (Math.random() < slipChance) {
                 a.slipAt = 0.15 + 0.6 * Math.pow(Math.random(), 1.4)
@@ -420,7 +425,8 @@ function updateSwing(a: Anchor, delta: number) {
 
 /** Fast movement builds swing; excessive swing adds a per-second slip hazard */
 function swingHazard(a: Anchor, delta: number, store: ReturnType<typeof useGameStore.getState>) {
-  if (a.slipped || store.settings.steadyGrip || refs.slipStreak >= GRIP.pityAfter) return
+  const pityAfter = useAdminStore.getState().odds.pityAfter
+  if (a.slipped || store.settings.steadyGrip || (pityAfter > 0 && refs.slipStreak >= pityAfter)) return
   const mag = Math.hypot(a.swing.x, a.swing.z)
   const over = mag - GRIP.swingThreshold
   if (over <= 0) return

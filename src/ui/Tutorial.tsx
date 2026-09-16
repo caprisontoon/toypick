@@ -2,6 +2,7 @@ import { useGameStore } from '../store/gameStore'
 import { sound } from '../audio/soundManager'
 import { useT } from '../i18n'
 
+/** 게임규칙 안내 (당첨왕 기획서의 게임규칙 1~4 · '7일 동안 보지 않기' 포함) */
 export function Tutorial() {
   const step = useGameStore((s) => s.tutorialStep)
   const setTutorialStep = useGameStore((s) => s.setTutorialStep)
@@ -27,6 +28,17 @@ export function Tutorial() {
           ))}
         </div>
         <div className="btn-row">
+          {step > 0 && (
+            <button
+              className="btn"
+              onClick={() => {
+                sound.play('click')
+                setTutorialStep(step - 1)
+              }}
+            >
+              {t.tutorial.back}
+            </button>
+          )}
           <button
             className="btn"
             onClick={() => {
@@ -49,6 +61,16 @@ export function Tutorial() {
             {last ? t.tutorial.play : t.tutorial.next}
           </button>
         </div>
+        <button
+          className="share-link"
+          onClick={() => {
+            sound.unlock()
+            sound.play('click')
+            finishTutorial(true)
+          }}
+        >
+          {t.tutorial.hideWeek}
+        </button>
       </div>
     </div>
   )

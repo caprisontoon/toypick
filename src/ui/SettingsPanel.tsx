@@ -50,7 +50,7 @@ export function SettingsPanel() {
         <label className="setting-row">
           <span>{S.language}</span>
           <div className="seg" role="radiogroup" aria-label={S.language}>
-            {(['en', 'zh'] as const).map((l) => (
+            {(['ko', 'en', 'zh'] as const).map((l) => (
               <button
                 key={l}
                 role="radio"
@@ -58,7 +58,7 @@ export function SettingsPanel() {
                 className={settings.language === l ? 'on' : ''}
                 onClick={() => { sound.play('click'); updateSettings({ language: l }) }}
               >
-                {l === 'en' ? 'English' : '中文'}
+                {l === 'ko' ? '한국어' : l === 'en' ? 'English' : '中文'}
               </button>
             ))}
           </div>

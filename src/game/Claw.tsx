@@ -4,7 +4,9 @@ import { useFrame } from '@react-three/fiber'
 import { BallCollider, RigidBody, type RapierRigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
 import { ASSETS, CLAW, DIFFICULTY } from '../config/gameConfig'
+import { catchSensorRadius } from '../config/odds'
 import { useGameStore } from '../store/gameStore'
+import { useAdminStore } from '../store/adminStore'
 import { refs } from '../store/refs'
 
 const RAIL_Y = 1.97
@@ -28,7 +30,10 @@ export function Claw() {
   const sensors = useRef<(RapierRigidBody | null)[]>([null, null, null])
   const { scene, animations } = useGLTF(ASSETS.claw.webp)
   const { actions, mixer } = useAnimations(animations, group)
-  const sensorRadius = useGameStore((s) => DIFFICULTY[s.settings.difficulty].sensorRadius)
+  // 집기 판정 반경 = 채널 난이도 기본값 × 관리자 집기 보정
+  const baseSensorRadius = useGameStore((s) => DIFFICULTY[s.settings.difficulty].sensorRadius)
+  const catchAssist = useAdminStore((s) => s.odds.catchAssist)
+  const sensorRadius = catchSensorRadius(catchAssist, baseSensorRadius)
 
   const model = useMemo(() => {
     scene.traverse((o: any) => {

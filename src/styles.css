@@ -1,3 +1,27 @@
+/**
+ * 투네랜드 톤앤매너 토큰
+ * 실제 서비스 컬러로 교체할 때는 이 블록만 수정하면 전체 화면에 반영됩니다.
+ */
+:root {
+  --toon-primary: #6c4cff;
+  --toon-primary-soft: #8a6bff;
+  --toon-accent: #ff6b9d;
+  --toon-kernel: #ffc93c;
+  --toon-kernel-soft: #ffe08a;
+  --toon-bg: #171033;
+  --toon-bg-deep: #0f0a24;
+  --toon-surface: rgba(38, 24, 82, 0.86);
+  --toon-surface-2: rgba(54, 36, 110, 0.7);
+  --toon-line: rgba(255, 255, 255, 0.14);
+  --toon-text: #ffffff;
+  --toon-dim: #c3b9e8;
+  --toon-good: #4ad991;
+  --toon-bad: #ff7a8a;
+  --toon-radius: 18px;
+  --toon-font: 'Jua', 'Gmarket Sans', 'Pretendard', -apple-system, BlinkMacSystemFont,
+    'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'PingFang SC', sans-serif;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -13,10 +37,10 @@ body,
 }
 
 body {
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI', 'Microsoft YaHei', sans-serif;
-  background: #150d2a;
-  color: #fff;
+  font-family: var(--toon-font);
+  background: var(--toon-bg);
+  color: var(--toon-text);
+  word-break: keep-all;
   -webkit-tap-highlight-color: transparent;
   touch-action: none;
   user-select: none;
@@ -1088,5 +1112,772 @@ button:focus-visible {
 @media (max-width: 640px) {
   .hide-mobile {
     display: none;
+  }
+}
+
+/* ==========================================================================
+   투네랜드 · 인형뽑기 (헤더 · 로비 · 관리자 · 내역)
+   ========================================================================== */
+
+/* ---------- 상단 투네랜드 바 ---------- */
+.toon-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: calc(52px + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) 14px 0;
+  background: linear-gradient(180deg, rgba(23, 16, 51, 0.95), rgba(23, 16, 51, 0.72));
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--toon-line);
+  pointer-events: auto;
+}
+
+.toon-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.toon-logo {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  font-size: 17px;
+  background: linear-gradient(135deg, var(--toon-primary), var(--toon-accent));
+  box-shadow: 0 4px 12px rgba(108, 76, 255, 0.45);
+}
+
+.toon-brand-text {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.toon-brand-text b {
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+
+.toon-brand-text i {
+  font-style: normal;
+  font-size: 13px;
+  color: var(--toon-kernel);
+}
+
+.toon-channel-chip {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--toon-dim);
+  background: var(--toon-surface-2);
+  border: 1px solid var(--toon-line);
+  white-space: nowrap;
+}
+
+.toon-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  min-width: 0;
+}
+
+.toon-grade {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.toon-nick {
+  color: var(--toon-dim);
+  white-space: nowrap;
+}
+
+.toon-wallet {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(64, 44, 14, 0.5);
+  border: 1px solid rgba(255, 201, 60, 0.45);
+  white-space: nowrap;
+}
+
+.toon-wallet b {
+  color: var(--toon-kernel-soft);
+}
+
+.toon-wallet i {
+  font-style: normal;
+  color: #b9d4ff;
+}
+
+.toon-btn {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--toon-line);
+  background: linear-gradient(120deg, var(--toon-primary), var(--toon-primary-soft));
+  color: #fff;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.toon-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.toon-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.toon-btn.ghost {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.toon-btn.admin {
+  background: linear-gradient(120deg, #2f8f6b, #3fb98c);
+}
+
+/* HUD가 투네랜드 헤더와 겹치지 않도록 아래로 내림 */
+.hud-top {
+  top: calc(60px + env(safe-area-inset-top));
+}
+
+/* ---------- 채널 선택(로비) ---------- */
+.lobby {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  overflow-y: auto;
+  padding: calc(64px + env(safe-area-inset-top)) 16px 32px;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(108, 76, 255, 0.35), transparent 70%),
+    linear-gradient(180deg, rgba(15, 10, 36, 0.92), rgba(15, 10, 36, 0.97));
+  backdrop-filter: blur(6px);
+}
+
+.lobby-inner {
+  max-width: 940px;
+  margin: 0 auto;
+}
+
+.lobby-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.lobby-head h1 {
+  font-size: 26px;
+  line-height: 1.25;
+}
+
+.lobby-head h1 small {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--toon-dim);
+}
+
+.lobby-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.lobby-notice {
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: var(--toon-radius);
+  background: var(--toon-surface-2);
+  border: 1px solid var(--toon-line);
+  font-size: 13px;
+  color: var(--toon-dim);
+}
+
+.lobby-notice li::before {
+  content: '• ';
+  color: var(--toon-kernel);
+}
+
+.lobby-me {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  border-radius: var(--toon-radius);
+  background: linear-gradient(120deg, rgba(108, 76, 255, 0.35), rgba(255, 107, 157, 0.2));
+  border: 1px solid var(--toon-line);
+  margin-bottom: 18px;
+}
+
+.lobby-me-grade {
+  font-size: 16px;
+}
+
+.lobby-me-kernel {
+  font-size: 18px;
+  color: var(--toon-kernel-soft);
+}
+
+.lobby-me-note {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--toon-dim);
+}
+
+.lobby-bonus {
+  margin: -8px 0 16px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  color: #1d1300;
+  background: var(--toon-kernel);
+}
+
+.lobby-section-title {
+  font-size: 15px;
+  margin: 0 0 8px 2px;
+  color: var(--toon-kernel);
+}
+
+.prize-strip {
+  list-style: none;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 18px;
+}
+
+.prize-item {
+  flex: 0 0 auto;
+  min-width: 150px;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--toon-surface);
+  border: 1px solid var(--toon-line);
+  display: grid;
+  gap: 4px;
+}
+
+.prize-item.rank-1 {
+  border-color: rgba(255, 201, 60, 0.7);
+  box-shadow: 0 6px 18px rgba(255, 201, 60, 0.18);
+}
+
+.prize-rank {
+  font-size: 12px;
+  color: var(--toon-kernel);
+}
+
+.prize-name {
+  font-size: 15px;
+}
+
+.prize-payout,
+.prize-stock {
+  font-size: 12px;
+  color: var(--toon-dim);
+}
+
+.channel-list {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.channel-card {
+  padding: 16px;
+  border-radius: var(--toon-radius);
+  background: var(--toon-surface);
+  border: 1px solid var(--toon-line);
+  display: grid;
+  gap: 8px;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.channel-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 201, 60, 0.6);
+}
+
+.channel-card.lack {
+  opacity: 0.6;
+}
+
+.channel-name {
+  font-size: 18px;
+}
+
+.channel-cost {
+  font-size: 20px;
+  color: var(--toon-kernel-soft);
+}
+
+.channel-meta {
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--toon-dim);
+}
+
+/* ---------- 투네랜드 공통 모달 · 표 ---------- */
+.toon-modal .consent-list {
+  text-align: left;
+  margin: 10px 0 16px;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--toon-dim);
+}
+
+.wide-modal {
+  width: min(760px, 94vw);
+  max-height: 84vh;
+  overflow-y: auto;
+}
+
+.table-scroll {
+  max-height: 46vh;
+  overflow: auto;
+  border-radius: 12px;
+  border: 1px solid var(--toon-line);
+  margin: 10px 0;
+}
+
+.toon-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.toon-table th,
+.toon-table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.toon-table thead th {
+  position: sticky;
+  top: 0;
+  background: rgba(38, 24, 82, 0.98);
+  color: var(--toon-kernel);
+  z-index: 1;
+}
+
+.toon-table td.num {
+  text-align: right;
+}
+
+.toon-table td.minus {
+  color: var(--toon-bad);
+}
+
+.toon-table td.plus {
+  color: var(--toon-good);
+}
+
+.toon-table small {
+  color: var(--toon-dim);
+}
+
+.tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  border: 1px solid var(--toon-line);
+}
+
+.tag.win {
+  color: #1d1300;
+  background: var(--toon-kernel);
+}
+
+.tag.lose {
+  color: var(--toon-dim);
+}
+
+.tag.refund {
+  color: #b9d4ff;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: var(--toon-dim);
+}
+
+.inventory-list {
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.inventory-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--toon-surface-2);
+  border: 1px solid var(--toon-line);
+  font-size: 13px;
+}
+
+.inv-name {
+  flex: 1;
+}
+
+.inv-value,
+.inv-date {
+  color: var(--toon-dim);
+  font-size: 12px;
+}
+
+.payout-line {
+  margin-top: 6px;
+  font-size: 15px;
+  color: var(--toon-kernel-soft);
+}
+
+.hint-text.small {
+  font-size: 11.5px;
+}
+
+.btn.ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--toon-dim);
+}
+
+.start-cost {
+  display: block;
+  font-style: normal;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.start-btn.lack {
+  filter: grayscale(0.35);
+}
+
+.odds-notice {
+  position: absolute;
+  top: calc(64px + env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: #1d1300;
+  background: var(--toon-kernel);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  animation: fadeIn 0.2s ease;
+}
+
+/* ---------- 관리자 페이지 ---------- */
+.admin-backdrop {
+  align-items: flex-start;
+  overflow-y: auto;
+  /* 상단 투네랜드 바에 가리지 않도록 헤더 높이만큼 띄움 */
+  padding: calc(64px + env(safe-area-inset-top)) 16px 16px;
+}
+
+.admin-panel {
+  position: relative;
+  width: min(1000px, 96vw);
+  margin: 0 auto;
+  padding: 18px;
+  border-radius: var(--toon-radius);
+  background: linear-gradient(180deg, rgba(48, 30, 92, 0.96), rgba(24, 14, 54, 0.98));
+  border: 1px solid var(--toon-line);
+  animation: popIn 0.18s ease;
+}
+
+.admin-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-head h2 {
+  font-size: 19px;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 12px 0;
+  flex-wrap: wrap;
+}
+
+.admin-tabs button {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--toon-line);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--toon-dim);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.admin-tabs button.on {
+  background: linear-gradient(120deg, var(--toon-primary), var(--toon-primary-soft));
+  color: #fff;
+  border-color: transparent;
+}
+
+.admin-body {
+  max-height: 68vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.admin-form {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-form label {
+  display: grid;
+  gap: 5px;
+  font-size: 13px;
+}
+
+.admin-form label > span {
+  color: var(--toon-kernel);
+}
+
+.admin-form label small,
+.admin-fieldset small {
+  color: var(--toon-dim);
+  font-size: 11.5px;
+}
+
+.admin-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.admin-fieldset {
+  border: 1px solid var(--toon-line);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.admin-fieldset legend {
+  padding: 0 6px;
+  font-size: 13px;
+  color: var(--toon-kernel);
+}
+
+.admin-preview {
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--toon-dim);
+}
+
+.admin-apply {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+
+.admin-form label.inline,
+.admin-apply label.inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-reserved {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  background: rgba(255, 201, 60, 0.14);
+  border: 1px solid rgba(255, 201, 60, 0.45);
+}
+
+.admin-sub {
+  font-size: 14px;
+  margin: 14px 0 6px;
+  color: var(--toon-kernel);
+}
+
+.stat-cards {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.stat-cards li {
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--toon-surface-2);
+  border: 1px solid var(--toon-line);
+  display: grid;
+  gap: 2px;
+}
+
+.stat-cards b {
+  font-size: 19px;
+  color: var(--toon-kernel-soft);
+}
+
+.stat-cards span {
+  font-size: 12px;
+  color: var(--toon-dim);
+}
+
+.admin-table input,
+.admin-table select {
+  width: 100%;
+  min-width: 72px;
+}
+
+.admin-table td:nth-child(2) input,
+.admin-table td:nth-child(5) input {
+  min-width: 132px;
+}
+
+input[type='number'],
+input[type='text'],
+input[type='datetime-local'],
+.admin-table input,
+.admin-table select,
+.admin-form input,
+.admin-form select {
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--toon-line);
+  background: rgba(10, 6, 26, 0.6);
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.admin-form input:focus,
+.admin-table input:focus,
+.admin-table select:focus {
+  outline: 2px solid var(--toon-primary-soft);
+  outline-offset: 1px;
+}
+
+input:disabled,
+select:disabled {
+  opacity: 0.45;
+}
+
+.chip-btn {
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--toon-line);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--toon-dim);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.chip-btn.on {
+  background: var(--toon-good);
+  color: #06301f;
+  border-color: transparent;
+}
+
+.admin-toast {
+  position: sticky;
+  bottom: 0;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 13px;
+  color: #1d1300;
+  background: var(--toon-kernel);
+}
+
+/* ---------- 모바일 ---------- */
+@media (max-width: 640px) {
+  .toon-header {
+    padding: env(safe-area-inset-top) 10px 0;
+    gap: 6px;
+  }
+
+  .toon-nick,
+  .toon-brand-text i,
+  .toon-channel-chip {
+    display: none;
+  }
+
+  .toon-wallet {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  .toon-btn {
+    padding: 5px 9px;
+    font-size: 11px;
+  }
+
+  .lobby-head h1 {
+    font-size: 21px;
+  }
+
+  .admin-row {
+    grid-template-columns: 1fr;
+  }
+
+  .lobby-me-note {
+    margin-left: 0;
   }
 }
