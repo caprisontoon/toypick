@@ -33,7 +33,17 @@ const _m = new THREE.Matrix4()
 const _c = new THREE.Color()
 
 /** Physics + game logic only; rendering is done by ToyInstances in a single pass per submesh */
-function ToyBody({ id, spawn, type }: { id: number; spawn: [number, number]; type: ToyTypeKey }) {
+function ToyBody({
+  id,
+  spawn,
+  tier,
+  type,
+}: {
+  id: number
+  spawn: [number, number]
+  tier: number
+  type: ToyTypeKey
+}) {
   const def = TOY_TYPE_MAP[type]
   const status = useGameStore((s) => s.toys.find((t) => t.id === id)?.status)
   const [gone, setGone] = useState(false)
@@ -101,7 +111,8 @@ function ToyBody({ id, spawn, type }: { id: number; spawn: [number, number]; typ
         }
       }}
       colliders={false}
-      position={[spawn[0], PHYSICS.floorY + TOY.radius + 0.35 + (id % 5) * 0.16, spawn[1]]}
+      // 층이 올라갈수록 조금 더 높은 곳에서 떨어뜨려 서로 겹치지 않게 합니다
+      position={[spawn[0], PHYSICS.floorY + TOY.radius + 0.35 + tier * (TOY.radius * 2 + 0.04), spawn[1]]}
       userData={{ toyId: id }}
       linearDamping={0.4}
       angularDamping={0.6}
@@ -201,7 +212,7 @@ export function Toys() {
   return (
     <>
       {toys.map((t) => (
-        <ToyBody key={t.id} id={t.id} spawn={t.spawn} type={t.type} />
+        <ToyBody key={t.id} id={t.id} spawn={t.spawn} tier={t.tier} type={t.type} />
       ))}
       <ToyInstances ids={ids} />
     </>

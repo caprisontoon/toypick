@@ -4,6 +4,7 @@ import {
   STORAGE_KEYS,
   TIMING,
   TOY,
+  buildSpawnSlots,
   TOY_TYPES,
   TOY_TYPE_MAP,
   rollToyType,
@@ -68,6 +69,8 @@ export interface ToyMeta {
   id: number
   status: 'inBox' | 'held' | 'out'
   spawn: [number, number]
+  /** 생성 시 몇 번째 층에서 떨어뜨릴지 (0이 맨 아래) */
+  tier: number
   type: ToyTypeKey
 }
 
@@ -172,10 +175,16 @@ function rollPrizeToyType(): ToyTypeKey {
 }
 
 function buildToys(difficulty: Difficulty): ToyMeta[] {
-  return DIFFICULTY[difficulty].layout.slice(0, TOY.count).map((spawn, i) => ({
+  // 인형 개수는 관리자에서 조절합니다 (저장된 값이 없으면 기본값)
+  const count = Math.max(
+    TOY.minCount,
+    Math.min(TOY.maxCount, useAdminStore.getState().odds.toyCount ?? TOY.count),
+  )
+  return buildSpawnSlots(count, DIFFICULTY[difficulty].layout).map((slot, i) => ({
     id: i,
     status: 'inBox' as const,
-    spawn,
+    spawn: [slot.x, slot.z] as [number, number],
+    tier: slot.tier,
     type: rollPrizeToyType(),
   }))
 }

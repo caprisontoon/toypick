@@ -88,7 +88,71 @@ export const RENDER = {
 export const TOY = {
   radius: 0.175,
   count: 10,
+  /** 관리자에서 조절 가능한 인형 개수 범위 */
+  minCount: 5,
+  maxCount: 60,
 }
+
+/** 인형 1개의 생성 위치 (판 위 좌표 + 몇 번째 층에서 떨어뜨릴지) */
+export interface SpawnSlot {
+  x: number
+  z: number
+  /** 0이 맨 아래 층. 층마다 조금 더 높은 곳에서 떨어집니다 */
+  tier: number
+}
+
+/**
+ * 인형 개수에 맞는 생성 위치를 만듭니다.
+ * 기본 개수 이하면 난이도별로 손으로 잡아둔 배치를 그대로 쓰고,
+ * 그보다 많으면 판을 격자로 채우며 층을 쌓습니다. (출구 구멍 위에는 놓지 않습니다)
+ */
+export function buildSpawnSlots(count: number, layout: [number, number][]): SpawnSlot[] {
+  if (count <= layout.length) {
+    return layout.slice(0, count).map(([x, z], i) => ({ x, z, tier: i % 5 }))
+  }
+
+  // 인형이 서로 파고들지 않도록 지름만큼 간격을 둡니다
+  const step = TOY.radius * 2 + 0.01
+  // 층마다 격자를 통째로 조금 밀어 완전히 수직으로 쌓이지 않게 합니다 (수직 정렬은 물리가 떨립니다)
+  const shift = 0.04
+  const margin = TOY.radius + 0.02 + shift
+  const minX = -PHYSICS.wallX + margin
+  const maxX = PHYSICS.wallX - margin
+  const minZ = PHYSICS.wallZBack + margin
+  const maxZ = PHYSICS.wallZFront - margin
+  const cols = Math.max(1, Math.floor((maxX - minX) / step) + 1)
+  const rows = Math.max(1, Math.floor((maxZ - minZ) / step) + 1)
+  // 격자를 판 가운데로 정렬
+  const offsetX = minX + (maxX - minX - (cols - 1) * step) / 2
+  const offsetZ = minZ + (maxZ - minZ - (rows - 1) * step) / 2
+
+  const cells: { x: number; z: number }[] = []
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const x = offsetX + c * step
+      const z = offsetZ + r * step
+      // 출구 구멍 위는 그냥 떨어져 버리므로 제외
+      const overHole =
+        x > PHYSICS.hole.minX - TOY.radius &&
+        x < PHYSICS.hole.maxX + TOY.radius &&
+        z > PHYSICS.hole.minZ - TOY.radius &&
+        z < PHYSICS.hole.maxZ + TOY.radius
+      if (!overHole) cells.push({ x, z })
+    }
+  }
+  if (cells.length === 0) return []
+
+  return Array.from({ length: count }, (_, i) => {
+    const cell = cells[i % cells.length]
+    const tier = Math.floor(i / cells.length)
+    // 같은 층은 같은 양만큼 밀리므로 층 안에서의 간격은 그대로 유지됩니다
+    const dx = tier % 2 === 0 ? -shift : shift
+    const dz = tier % 3 === 1 ? shift : -shift
+    return { x: cell.x + dx, z: cell.z + dz, tier }
+  })
+}
+
+
 
 export type Rarity = 'common' | 'rare' | 'hidden'
 export type ToyTypeKey = 'shiba' | 'snow' | 'sakura' | 'golden' | 'cosmic'
