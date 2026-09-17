@@ -26,6 +26,53 @@ function makeCometTexture(): THREE.CanvasTexture {
   return tex
 }
 
+/**
+ * 정지 화면으로 고정할 때 사용할 셰이더 시각(t).
+ * 원래 애니메이션이 화면에 처음 보여주던 구간(입장 직후)과 같은 무늬가 나오도록 맞춘 값입니다.
+ * 값이 커지면 레이마칭 터널 안쪽의 어두운 구간이 걸려 배경이 밋밋해집니다.
+ */
+const FROZEN_FLOOR_TIME = 3
+const FROZEN_SKY_TIME = 10
+
+/**
+ * 고정 배경을 굽는 워밍업 시간(초).
+ * 첫 프레임에 한 번만 그리면 셰이더 컴파일 · 캔버스 리사이즈 타이밍에 걸려 텍스처가 비는 경우가 있어,
+ * 잠깐 동안 같은 장면(uTime 고정)을 반복해 그린 뒤 정지시킵니다. uTime이 고정이라 화면은 움직이지 않습니다.
+ */
+const BAKE_SECONDS = 1.2
+
+/** 굽기가 끝난 오프스크린 쿼드의 GPU 자원을 정리합니다 */
+function disposeQuad(quad: { scene: THREE.Scene; mat: THREE.ShaderMaterial }) {
+  quad.scene.traverse((o) => {
+    if (o instanceof THREE.Mesh) o.geometry.dispose()
+  })
+  quad.mat.dispose()
+}
+
+/** 오프스크린 타깃에 정지 배경을 굽는 렌더 루프 (워밍업 후 자동 정지) */
+function useBakedTarget(
+  rt: THREE.WebGLRenderTarget,
+  quad: { scene: THREE.Scene; cam: THREE.Camera; mat: THREE.ShaderMaterial },
+  frozenTime: number,
+) {
+  const elapsed = useRef(0)
+  const done = useRef(false)
+  useEffect(() => () => rt.dispose(), [rt])
+  useFrame(({ gl }, delta) => {
+    if (done.current) return
+    elapsed.current += delta
+    quad.mat.uniforms.uTime.value = frozenTime
+    const prev = gl.getRenderTarget()
+    gl.setRenderTarget(rt)
+    gl.render(quad.scene, quad.cam)
+    gl.setRenderTarget(prev)
+    if (elapsed.current >= BAKE_SECONDS) {
+      done.current = true
+      disposeQuad(quad)
+    }
+  })
+}
+
 /** Comets: glowing head + tapered fading tail welded together, streaking from upper-right to lower-left */
 function Comets() {
   const groups = useRef<(THREE.Group | null)[]>([])
@@ -240,13 +287,16 @@ const PASS_FRAG = /* glsl */ `
   }
 `
 
-/** Phantom floor: raymarch to a low-res off-screen texture (~1/20 fragment count), refresh every other frame and map back to the floor disc */
+/**
+ * 바닥 배경: 레이마칭 결과를 오프스크린 텍스처에 **한 번만** 그려두고 그대로 사용합니다.
+ * 매 프레임 레이마칭하면 프래그먼트 비용이 커서 저사양 PC에서 버벅이므로,
+ * 흐르는 애니메이션을 포기하는 대신 배경 GPU 비용을 사실상 0으로 만듭니다.
+ */
 function PhantomFloor() {
-  const quality = useGameStore((st) => st.settings.quality)
-  const size = quality === 'high' ? 512 : 320
+  // 1회만 그리므로 화질을 낮출 이유가 없습니다
   const rt = useMemo(() => {
-    return new THREE.WebGLRenderTarget(size, size, { depthBuffer: false, stencilBuffer: false })
-  }, [size])
+    return new THREE.WebGLRenderTarget(512, 512, { depthBuffer: false, stencilBuffer: false })
+  }, [])
   const quad = useMemo(() => {
     const scene = new THREE.Scene()
     const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
@@ -261,27 +311,7 @@ function PhantomFloor() {
     return { scene, cam, mat }
   }, [])
   const passUniforms = useMemo(() => ({ uMap: { value: rt.texture } }), [rt])
-  const simT = useRef(0)
-  const frame = useRef(0)
-  useEffect(() => () => rt.dispose(), [rt])
-  useFrame(({ gl }, delta) => {
-    // Slow flow normally; briefly accelerate on a successful grab, then smoothly settle back
-    let speed = 0.35
-    if (refs.successPulseAt > 0) {
-      const e = (performance.now() - refs.successPulseAt) / 1000
-      if (e < 5) speed += 2.1 * Math.exp(-e * 1.1)
-    }
-    simT.current += Math.min(delta, 0.05) * speed
-    // Slow flow only needs every-other-frame refresh, halving raymarch cost
-    frame.current++
-    if (frame.current % 2 === 0) {
-      quad.mat.uniforms.uTime.value = simT.current
-      const prev = gl.getRenderTarget()
-      gl.setRenderTarget(rt)
-      gl.render(quad.scene, quad.cam)
-      gl.setRenderTarget(prev)
-    }
-  })
+  useBakedTarget(rt, quad, FROZEN_FLOOR_TIME)
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.705, 0.2]}>
       <circleGeometry args={[22, 64]} />
@@ -305,13 +335,13 @@ const AURORA_QUAD_FRAG_HEAD = /* glsl */ `
 `
 
 /**
- * Offscreen aurora dome: the fbm shader is expensive at full resolution (3 fbm calls
- * per pixel over most of the screen at dpr 1.5). Render it into a small equirect
- * render target every 3rd frame and let the dome simply sample the texture.
+ * 오로라 하늘: fbm 셰이더를 등장방형(equirect) 텍스처에 **한 번만** 그려두고 돔이 그대로 샘플링합니다.
+ * 바닥과 마찬가지로 천천히 흐르는 연출은 사라지지만, 매 프레임 셰이더 비용이 없어집니다.
  */
 function AuroraDome() {
+  // 1회만 그리므로 해상도를 올려도 지속 비용이 없습니다
   const rt = useMemo(
-    () => new THREE.WebGLRenderTarget(512, 256, { depthBuffer: false, stencilBuffer: false }),
+    () => new THREE.WebGLRenderTarget(1024, 512, { depthBuffer: false, stencilBuffer: false }),
     [],
   )
   const quad = useMemo(() => {
@@ -339,18 +369,7 @@ function AuroraDome() {
     return { scene, cam, mat }
   }, [])
   const passUniforms = useMemo(() => ({ uMap: { value: rt.texture } }), [rt])
-  const frame = useRef(0)
-  useEffect(() => () => rt.dispose(), [rt])
-  useFrame(({ gl, clock }) => {
-    // Aurora drifts slowly; refreshing every 3rd frame is imperceptible
-    frame.current++
-    if (frame.current % 3 !== 0) return
-    quad.mat.uniforms.uTime.value = clock.elapsedTime
-    const prev = gl.getRenderTarget()
-    gl.setRenderTarget(rt)
-    gl.render(quad.scene, quad.cam)
-    gl.setRenderTarget(prev)
-  })
+  useBakedTarget(rt, quad, FROZEN_SKY_TIME)
   return (
     <mesh>
       <sphereGeometry args={[32, 32, 16]} />
@@ -439,23 +458,6 @@ function makeGlowTexture(color: string): THREE.CanvasTexture {
 export function Stage() {
   const quality = useGameStore((s) => s.settings.quality)
 
-  const domeTexture = useMemo(() => {
-    const c = document.createElement('canvas')
-    c.width = 16
-    c.height = 512
-    const ctx = c.getContext('2d')!
-    const grad = ctx.createLinearGradient(0, 0, 0, 512)
-    grad.addColorStop(0, '#3d2482')
-    grad.addColorStop(0.35, '#241653')
-    grad.addColorStop(0.65, '#150d33')
-    grad.addColorStop(1, '#090616')
-    ctx.fillStyle = grad
-    ctx.fillRect(0, 0, 16, 512)
-    const tex = new THREE.CanvasTexture(c)
-    tex.colorSpace = THREE.SRGBColorSpace
-    return tex
-  }, [])
-
   const glowPink = useMemo(() => makeGlowTexture('rgba(255, 92, 138, 0.55)'), [])
   const glowCyan = useMemo(() => makeGlowTexture('rgba(77, 216, 255, 0.4)'), [])
 
@@ -469,21 +471,8 @@ export function Stage() {
         }
       }}
     >
-      {/* Sky dome: offscreen aurora render target on high quality, static gradient on smooth */}
-      {quality === 'high' ? (
-        <AuroraDome />
-      ) : (
-        <mesh>
-          <sphereGeometry args={[32, 32, 16]} />
-          <meshBasicMaterial
-            map={domeTexture}
-            side={THREE.BackSide}
-            depthWrite={false}
-            toneMapped={false}
-            fog={false}
-          />
-        </mesh>
-      )}
+      {/* 하늘 돔: 오로라를 1회만 렌더해 고정한 텍스처를 화질 설정과 무관하게 사용 */}
+      <AuroraDome />
 
       {/* Dark floor (occludes comets below the horizon) */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.72, 0]}>
