@@ -3,6 +3,7 @@ import { useGameStore } from '../store/gameStore'
 import { useAdminStore } from '../store/adminStore'
 import { DEFAULT_ODDS, channelWinRate, type OddsConfig } from '../config/odds'
 import { CHANNELS, DEFAULT_PRIZES, type PayoutType, type PrizeConfig } from '../config/toonelandConfig'
+import { TOY } from '../config/gameConfig'
 import { sound } from '../audio/soundManager'
 import { useT } from '../i18n'
 
@@ -32,6 +33,7 @@ function downloadCsv(name: string, rows: (string | number)[][]): void {
  */
 export function AdminPanel() {
   const closeOverlay = useGameStore((s) => s.closeOverlay)
+  const restartGame = useGameStore((s) => s.restartGame)
   const odds = useAdminStore((s) => s.odds)
   const reserved = useAdminStore((s) => s.reserved)
   const logs = useAdminStore((s) => s.logs)
@@ -72,13 +74,18 @@ export function AdminPanel() {
       draft.cashbackPercent >= 0 &&
       draft.cashbackPercent <= 100 &&
       draft.catchAssist >= 20 &&
-      draft.catchAssist <= 300
+      draft.catchAssist <= 300 &&
+      draft.toyCount >= TOY.minCount &&
+      draft.toyCount <= TOY.maxCount
     if (!ok) {
       flash(t.admin.odds.invalid)
       return
     }
     sound.play('click')
+    const toyCountChanged = draft.toyCount !== odds.toyCount
     saveOdds(draft, mode, mode === 'reserved' ? new Date(at).getTime() : undefined)
+    // 인형 개수는 판을 새로 깔아야 반영됩니다 (즉시 적용일 때만)
+    if (toyCountChanged && mode === 'now') restartGame()
     flash(t.admin.odds.saved)
   }
 
@@ -206,6 +213,21 @@ export function AdminPanel() {
                   <small>{t.admin.odds.pityHint}</small>
                 </label>
               </div>
+
+              <fieldset className="admin-fieldset">
+                <legend>{t.admin.odds.board}</legend>
+                <label>
+                  <span>{t.admin.odds.toyCount}</span>
+                  <input
+                    type="number"
+                    min={TOY.minCount}
+                    max={TOY.maxCount}
+                    value={draft.toyCount}
+                    onChange={(e) => setNum('toyCount', e.target.value)}
+                  />
+                  <small>{t.admin.odds.toyCountHint(TOY.minCount, TOY.maxCount)}</small>
+                </label>
+              </fieldset>
 
               <fieldset className="admin-fieldset">
                 <legend>{t.admin.odds.channelFactor}</legend>

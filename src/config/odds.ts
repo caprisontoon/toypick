@@ -5,6 +5,7 @@
  * 집게가 인형을 물었는지는 물리 판정(실력)이 결정하고, 물린 인형을 끝까지 들고 가는지(그립 유지)는
  * 이 파일의 확률이 결정합니다. 모든 값은 관리자 페이지에서 조정됩니다.
  */
+import { TOY } from './gameConfig'
 import { DEFAULT_PRIZES, type ChannelKey, type PrizeConfig } from './toonelandConfig'
 
 export interface OddsConfig {
@@ -25,6 +26,8 @@ export interface OddsConfig {
   cashbackPercent: number
   /** 연속 실패 n회 시 다음 판은 확정 당첨 (0이면 미적용) */
   pityAfter: number
+  /** 판에 올릴 인형 개수 (많을수록 물리 연산 부담이 커집니다) */
+  toyCount: number
   /** 채널별 확률 배율 */
   channelFactor: Record<ChannelKey, number>
   /** 상품(인형)별 설정 */
@@ -39,6 +42,7 @@ export const DEFAULT_ODDS: OddsConfig = {
   catchAssist: 100,
   cashbackPercent: 4,
   pityAfter: 2,
+  toyCount: TOY.count,
   channelFactor: { novice: 1.2, middle: 1.0, expert: 0.9, hero: 0.8, legend: 0.7 },
   prizes: DEFAULT_PRIZES,
 }

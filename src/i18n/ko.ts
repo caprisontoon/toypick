@@ -390,6 +390,10 @@ export const ko = {
       cashbackHint: '꽝일 때 소진 강냉이의 몇 %를 강냉이로 돌려줄지 설정합니다. 소수점은 절삭합니다.',
       pity: '연속 실패 보정 (회)',
       pityHint: 'n회 연속 실패 시 다음 판은 확정 당첨입니다. 0이면 미적용.',
+      board: '게임판 설정',
+      toyCount: '인형 개수',
+      toyCountHint: (min: number, max: number) =>
+        `판에 올릴 인형 수입니다 (${min}~${max}). 많을수록 물리 연산 부담이 커집니다. 저장하면 판이 새로 깔리고, 성능 비교는 설정 → 성능 패널의 FPS로 확인하세요.`,
       channelFactor: '채널별 확률 배율',
       preview: '적용 예시',
       previewRow: (name: string, rate: string) => `${name} 채널 그립 성공 확률 ${rate}%`,
