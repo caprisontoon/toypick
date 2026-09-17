@@ -1,5 +1,3 @@
-import { useState } from 'react'
-import { DIFFICULTY, type Difficulty } from '../config/gameConfig'
 import { useGameStore } from '../store/gameStore'
 import { sound } from '../audio/soundManager'
 import { useT } from '../i18n'
@@ -36,10 +34,8 @@ export function SettingsPanel() {
   const updateSettings = useGameStore((s) => s.updateSettings)
   const closeOverlay = useGameStore((s) => s.closeOverlay)
   const openOverlay = useGameStore((s) => s.openOverlay)
-  const restartGame = useGameStore((s) => s.restartGame)
   const setTutorialStep = useGameStore((s) => s.setTutorialStep)
   const setStatus = useGameStore((s) => s.setStatus)
-  const [pendingDifficulty, setPendingDifficulty] = useState<Difficulty | null>(null)
   const t = useT()
   const S = t.settings
 
@@ -101,44 +97,6 @@ export function SettingsPanel() {
             ))}
           </div>
         </label>
-        <label className="setting-row">
-          <span>{S.difficulty}</span>
-          <div className="seg" role="radiogroup" aria-label={S.difficulty}>
-            {(Object.keys(DIFFICULTY) as Difficulty[]).map((d) => (
-              <button
-                key={d}
-                role="radio"
-                aria-checked={settings.difficulty === d}
-                className={settings.difficulty === d ? 'on' : ''}
-                onClick={() => {
-                  sound.play('click')
-                  if (d !== settings.difficulty) setPendingDifficulty(d)
-                }}
-              >
-                {S.diffNames[d]}
-              </button>
-            ))}
-          </div>
-        </label>
-        {pendingDifficulty && (
-          <div className="inline-confirm" role="alertdialog" aria-label={S.diffConfirmAria}>
-            <p>{S.diffConfirm(S.diffNames[pendingDifficulty])}</p>
-            <div className="btn-row">
-              <button className="btn" onClick={() => { sound.play('click'); setPendingDifficulty(null) }}>{S.cancel}</button>
-              <button
-                className="btn danger"
-                onClick={() => {
-                  sound.play('click')
-                  updateSettings({ difficulty: pendingDifficulty })
-                  setPendingDifficulty(null)
-                  restartGame()
-                }}
-              >
-                {S.confirmSwitch}
-              </button>
-            </div>
-          </div>
-        )}
         <div className="menu-list" style={{ marginTop: 12 }}>
           <button
             className="btn"
