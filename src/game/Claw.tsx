@@ -25,8 +25,6 @@ export function Claw() {
   const wheelR = useRef<THREE.Group>(null)
   const lastZ = useRef(0)
   const wheelRoll = useRef(0)
-  const tipOpen = useRef<(THREE.Vector3 | null)[]>([null, null, null])
-  const tipClosed = useRef<(THREE.Vector3 | null)[]>([null, null, null])
   const sensors = useRef<(RapierRigidBody | null)[]>([null, null, null])
   const { scene, animations } = useGLTF(ASSETS.claw.webp)
   const { actions, mixer } = useAnimations(animations, group)
@@ -50,15 +48,7 @@ export function Claw() {
       // Narrow the gantry to prevent overrunning the side rails at X boundaries
       topBox.current.scale.set(0.7, 1, 0.85)
     }
-    // Built-in claw tip helper boxes: cube1~3 are open positions, cube1-1~3-1 are closed positions (claw group local coords)
     scene.updateMatrixWorld(true)
-    const center = (name: string) => {
-      const node = scene.getObjectByName(name)
-      if (!node) return null
-      return new THREE.Box3().setFromObject(node).getCenter(new THREE.Vector3())
-    }
-    tipOpen.current = [center('cube1'), center('cube2'), center('cube3')]
-    tipClosed.current = [center('cube1-1'), center('cube2-1'), center('cube3-1')]
     return scene
   }, [scene])
 
@@ -117,27 +107,22 @@ export function Claw() {
       w.rotation.x = wheelRoll.current
     }
 
-    // Interpolate sensors between the model's built-in open/closed claw-tip helper box positions by close progress
+    /**
+     * 집기 판정 센서를 집게 손가락 끝에 배치합니다.
+     * 모델에 들어있는 집게 끝 헬퍼 박스(cube1~3) 좌표는 모델 로컬 기준 y가 1.1 부근이라,
+     * 여기에 집게 높이를 더하면 센서가 인형보다 1m 이상 위에 떠서 어떤 인형도 잡히지 않습니다.
+     * 그래서 헬퍼 박스 대신 CLAW 설정값(반경 · 높이)으로 배치합니다.
+     */
     const ring = THREE.MathUtils.lerp(CLAW.sensorRing, CLAW.sensorRingClosed, closeProgress)
     for (let i = 0; i < 3; i++) {
       const body = sensors.current[i]
       if (!body) continue
-      const open = tipOpen.current[i]
-      const closed = tipClosed.current[i]
-      if (open && closed) {
-        body.setNextKinematicTranslation({
-          x: clawPos.x + THREE.MathUtils.lerp(open.x, closed.x, closeProgress),
-          y: clawPos.y + THREE.MathUtils.lerp(open.y, closed.y, closeProgress),
-          z: clawPos.z + THREE.MathUtils.lerp(open.z, closed.z, closeProgress),
-        })
-      } else {
-        const ang = (i * Math.PI * 2) / 3
-        body.setNextKinematicTranslation({
-          x: clawPos.x + Math.cos(ang) * ring,
-          y: clawPos.y + CLAW.sensorHeight,
-          z: clawPos.z + Math.sin(ang) * ring,
-        })
-      }
+      const ang = (i * Math.PI * 2) / 3
+      body.setNextKinematicTranslation({
+        x: clawPos.x + Math.cos(ang) * ring,
+        y: clawPos.y + CLAW.sensorHeight,
+        z: clawPos.z + Math.sin(ang) * ring,
+      })
     }
   })
 
