@@ -87,10 +87,10 @@ export const RENDER = {
 
 export const TOY = {
   radius: 0.175,
-  count: 10,
+  count: 15,
   /** 관리자에서 조절 가능한 인형 개수 범위 */
   minCount: 5,
-  maxCount: 60,
+  maxCount: 20,
 }
 
 /** 인형 1개의 생성 위치 (판 위 좌표 + 몇 번째 층에서 떨어뜨릴지) */
@@ -143,8 +143,11 @@ export function buildSpawnSlots(count: number, layout: [number, number][]): Spaw
   if (cells.length === 0) return []
 
   return Array.from({ length: count }, (_, i) => {
-    const cell = cells[i % cells.length]
     const tier = Math.floor(i / cells.length)
+    const indexInTier = i % cells.length
+    const tierCount = Math.min(count - tier * cells.length, cells.length)
+    // 한 층을 다 채우지 못하는 경우 격자 칸을 건너뛰며 골라 판 전체에 고르게 퍼뜨립니다
+    const cell = cells[Math.floor((indexInTier * cells.length) / tierCount)]
     // 같은 층은 같은 양만큼 밀리므로 층 안에서의 간격은 그대로 유지됩니다
     const dx = tier % 2 === 0 ? -shift : shift
     const dz = tier % 3 === 1 ? shift : -shift

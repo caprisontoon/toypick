@@ -8,7 +8,7 @@
 import { create } from 'zustand'
 import { DEFAULT_ODDS, type OddsConfig } from '../config/odds'
 import { TOONELAND_KEYS, type PayoutType } from '../config/toonelandConfig'
-import type { ToyTypeKey } from '../config/gameConfig'
+import { TOY, type ToyTypeKey } from '../config/gameConfig'
 import { storageGet, storageSet } from './persistence'
 
 export interface OddsLog {
@@ -78,8 +78,11 @@ const persistedDefault: PersistedOdds = { odds: DEFAULT_ODDS, reserved: null, lo
 function loadOdds(): PersistedOdds {
   const raw = storageGet(TOONELAND_KEYS.odds, persistedDefault)
   // 저장된 값이 구버전이어도 기본값으로 빈 칸을 채워 안전하게 복구
+  const odds = { ...DEFAULT_ODDS, ...raw.odds, prizes: raw.odds?.prizes?.length ? raw.odds.prizes : DEFAULT_ODDS.prizes }
+  // 예전에 저장된 값이 현재 허용 범위를 벗어날 수 있으므로 맞춰 줄입니다
+  odds.toyCount = Math.max(TOY.minCount, Math.min(TOY.maxCount, odds.toyCount ?? TOY.count))
   return {
-    odds: { ...DEFAULT_ODDS, ...raw.odds, prizes: raw.odds?.prizes?.length ? raw.odds.prizes : DEFAULT_ODDS.prizes },
+    odds,
     reserved: raw.reserved ?? null,
     logs: raw.logs ?? [],
   }

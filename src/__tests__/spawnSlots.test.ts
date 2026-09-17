@@ -13,13 +13,13 @@ describe('인형 생성 위치', () => {
   })
 
   it('요청한 개수만큼 만든다', () => {
-    for (const n of [10, 30, 60]) {
+    for (const n of [10, 15, 20, 60]) {
       expect(buildSpawnSlots(n, layout)).toHaveLength(n)
     }
   })
 
   it('모든 인형이 판 안에 들어간다', () => {
-    for (const s of buildSpawnSlots(60, layout)) {
+    for (const s of buildSpawnSlots(20, layout)) {
       expect(Math.abs(s.x)).toBeLessThanOrEqual(PHYSICS.wallX - TOY.radius)
       expect(s.z).toBeGreaterThanOrEqual(PHYSICS.wallZBack + TOY.radius - 0.001)
       expect(s.z).toBeLessThanOrEqual(PHYSICS.wallZFront - TOY.radius + 0.001)
@@ -27,7 +27,7 @@ describe('인형 생성 위치', () => {
   })
 
   it('출구 구멍 위에는 놓지 않는다', () => {
-    for (const s of buildSpawnSlots(60, layout)) {
+    for (const s of buildSpawnSlots(20, layout)) {
       const overHole =
         s.x > PHYSICS.hole.minX && s.x < PHYSICS.hole.maxX &&
         s.z > PHYSICS.hole.minZ && s.z < PHYSICS.hole.maxZ
@@ -36,7 +36,7 @@ describe('인형 생성 위치', () => {
   })
 
   it('같은 층 안에서는 인형끼리 겹치지 않는다', () => {
-    const slots = buildSpawnSlots(60, layout)
+    const slots = buildSpawnSlots(20, layout)
     const byTier = new Map<number, typeof slots>()
     for (const s of slots) byTier.set(s.tier, [...(byTier.get(s.tier) ?? []), s])
     for (const tierSlots of byTier.values()) {
