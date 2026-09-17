@@ -1,8 +1,32 @@
 import { useGameStore } from '../store/gameStore'
+import { ko, type Dict } from './ko'
 
-export type Lang = 'en' | 'zh'
+export type Lang = 'ko' | 'en' | 'zh'
 
-const en = {
+/** 부분 번역 사전 타입 — 비어 있는 키는 한국어 문구로 자동 대체됩니다 */
+type DeepPartial<T> = T extends (...args: never[]) => unknown
+  ? T
+  : T extends readonly unknown[]
+    ? T
+    : T extends object
+      ? { [K in keyof T]?: DeepPartial<T[K]> }
+      : T
+
+/** 한국어 사전 위에 번역본을 덮어써 완전한 사전을 만듭니다 */
+function deepMerge<T>(base: T, patch: DeepPartial<T> | undefined): T {
+  if (patch == null) return base
+  if (typeof base !== 'object' || base === null || Array.isArray(base) || typeof base === 'function') {
+    return patch as T
+  }
+  const out = { ...(base as object) } as Record<string, unknown>
+  for (const [k, v] of Object.entries(patch as object)) {
+    if (v === undefined) continue
+    out[k] = deepMerge((base as Record<string, unknown>)[k], v as never)
+  }
+  return out as T
+}
+
+const en: DeepPartial<Dict> = {
   title: '3D Claw Machine',
   status: {
     READY: 'Ready',
@@ -21,8 +45,8 @@ const en = {
     grabs: (n: number) => `Grabs ${n}`,
     wins: (n: number) => `Wins ${n}`,
     left: (n: number) => `Left ${n}`,
-    coins: (n: number) => `🪙 ${n}`,
-    dailyBonus: (n: number) => `Daily bonus +${n} coins!`,
+    coins: (n: number) => `🌽 ${n.toLocaleString()}`,
+    dailyBonus: (n: number) => `Attendance bonus +${n.toLocaleString()} kernels!`,
     shake: 'Shake',
     view: 'View',
     more: 'More',
@@ -66,7 +90,7 @@ const en = {
       collectAll: { name: 'Full House', desc: 'Collect every toy type' },
     } as Record<string, { name: string; desc: string }>,
   },
-  start: { label: 'START', grabbing: 'Grabbing…', insert: 'INSERT 🪙', insertFirst: 'Insert a coin first!', skip: 'Skip ⏭', aria: 'Start grabbing' },
+  start: { label: 'START', grabbing: 'Grabbing…', insert: 'INSERT 🌽', insertFirst: 'Insert kernels first!', skip: 'Skip ⏭', aria: 'Start grabbing' },
   loading: {
     loader: 'Loading',
     progress: (p: number, item: string) => `${p}%${item ? ` · loading ${item}` : ''}`,
@@ -107,9 +131,9 @@ const en = {
       fastMove: 'Too fast — it swung loose!',
       weakGrip: 'Weak grip!',
     },
-    coinReward: (n: number) => `Nice catch! +${n} coins`,
-    noCoins: 'Out of coins — win rewards, restart relief, or come back tomorrow for the daily bonus.',
-    playAgain: 'Play Again · 🪙1',
+    coinReward: (label: string) => `Prize paid: ${label}`,
+    noCoins: 'Not enough kernels — charge up or come back tomorrow for the attendance bonus.',
+    playAgain: (n: number) => `Play Again · 🌽${n.toLocaleString()}`,
     viewSummary: 'Summary',
     restart: 'Restart',
     aria: 'Grab result',
@@ -216,9 +240,7 @@ const en = {
   },
 }
 
-type Dict = typeof en
-
-const zh: Dict = {
+const zh: DeepPartial<Dict> = {
   title: '3D 娃娃机',
   status: {
     READY: '待机',
@@ -237,8 +259,8 @@ const zh: Dict = {
     grabs: (n) => `抓取 ${n} 次`,
     wins: (n) => `成功 ${n}`,
     left: (n) => `剩余 ${n}`,
-    coins: (n) => `🪙 ${n}`,
-    dailyBonus: (n) => `每日签到 +${n} 金币！`,
+    coins: (n) => `🌽 ${n.toLocaleString()}`,
+    dailyBonus: (n) => `签到奖励 +${n.toLocaleString()} 强奶伊！`,
     shake: '摇一摇',
     view: '视角',
     more: '更多',
@@ -282,7 +304,7 @@ const zh: Dict = {
       collectAll: { name: '全图鉴', desc: '集齐所有玩偶种类' },
     } as Record<string, { name: string; desc: string }>,
   },
-  start: { label: 'START', grabbing: '抓取中…', insert: '投币 🪙', insertFirst: '先投币才能操作哦！', skip: '跳过 ⏭', aria: '开始抓取' },
+  start: { label: 'START', grabbing: '抓取中…', insert: '投入 🌽', insertFirst: '先投入强奶伊才能操作哦！', skip: '跳过 ⏭', aria: '开始抓取' },
   loading: {
     loader: '加载中',
     progress: (p, item) => `${p}%${item ? ` · 正在加载 ${item}` : ''}`,
@@ -323,9 +345,9 @@ const zh: Dict = {
       fastMove: '太快了，甩出去了！',
       weakGrip: '爪力不足！',
     },
-    coinReward: (n) => `手气不错！奖励 ${n} 金币`,
-    noCoins: '金币用完了——抓中有返币，重新开局有救济币，明天还有每日签到币。',
-    playAgain: '再来一次 · 🪙1',
+    coinReward: (label) => `已发放奖励：${label}`,
+    noCoins: '强奶伊不足——请先充值，或明天再来领取签到奖励。',
+    playAgain: (n) => `再来一次 · 🌽${n.toLocaleString()}`,
     viewSummary: '查看结算',
     restart: '重新开局',
     aria: '抓取结果',
@@ -432,7 +454,11 @@ const zh: Dict = {
   },
 }
 
-const dicts: Record<Lang, Dict> = { en, zh }
+const dicts: Record<Lang, Dict> = {
+  ko,
+  en: deepMerge<Dict>(ko, en),
+  zh: deepMerge<Dict>(ko, zh),
+}
 
 export function useT(): Dict {
   const lang = useGameStore((s) => s.settings.language)

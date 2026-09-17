@@ -26,6 +26,13 @@ import { PerfPanel } from './ui/PerfPanel'
 import { SkipButton } from './ui/SkipButton'
 import { AlbumPanel } from './ui/AlbumPanel'
 import { PhotoBar } from './ui/PhotoBar'
+import { ToonelandHeader } from './ui/ToonelandHeader'
+import { LobbyScreen } from './ui/LobbyScreen'
+import { AdminPanel } from './ui/AdminPanel'
+import { ChargeModal, ConsentModal, InventoryPanel, PlayHistoryPanel } from './ui/ToonelandPanels'
+import { useAdminStore } from './store/adminStore'
+import { CHANNEL_MAP } from './config/toonelandConfig'
+import { useT } from './i18n'
 
 export default function App() {
   const status = useGameStore((s) => s.status)
@@ -34,9 +41,41 @@ export default function App() {
   const setUnsupported = useGameStore((s) => s.setUnsupported)
   const setStatus = useGameStore((s) => s.setStatus)
   const fatalError = useGameStore((s) => s.fatalError)
+  const inLobby = useGameStore((s) => s.inLobby)
+  const consent = useGameStore((s) => s.consent)
+  const changeNotice = useAdminStore((s) => s.changeNotice)
+  const clearNotice = useAdminStore((s) => s.clearNotice)
+  const setAdminMode = useAdminStore((s) => s.setAdminMode)
   const [canvasKey, setCanvasKey] = useState(0)
+  const t = useT()
 
   useKeyboard()
+
+  // 관리자 모드 진입: ?admin=1 주소 또는 Ctrl/Cmd + Shift + A
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('admin') === '1') setAdminMode(true)
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.code === 'KeyA') {
+        e.preventDefault()
+        setAdminMode(!useAdminStore.getState().adminMode)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [setAdminMode])
+
+  // 예약된 확률 설정이 도래했는지 주기적으로 확인
+  useEffect(() => {
+    const id = window.setInterval(() => useAdminStore.getState().flushReserved(), 20000)
+    return () => window.clearInterval(id)
+  }, [])
+
+  // 확률 변경 안내 (럭키픽 기획서 v1.4)
+  useEffect(() => {
+    if (!changeNotice) return
+    const id = window.setTimeout(clearNotice, 4000)
+    return () => window.clearTimeout(id)
+  }, [changeNotice, clearNotice])
 
   // BOOT: environment detection (FR-001)
   useEffect(() => {
@@ -50,9 +89,9 @@ export default function App() {
   const photoMode = useGameStore((s) => s.photoMode)
   const leftHanded = useGameStore((s) => s.settings.leftHanded)
   useEffect(() => {
-    document.title = language === 'zh' ? '3D 娃娃机' : '3D Claw Machine'
-    document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en'
-  }, [language])
+    document.title = t.title
+    document.documentElement.lang = language === 'zh' ? 'zh-CN' : language === 'en' ? 'en' : 'ko'
+  }, [language, t.title])
 
   // Coin sound: played uniformly when entering COIN state
   useEffect(() => {
@@ -87,7 +126,10 @@ export default function App() {
   useEffect(() => {
     const onHide = () => {
       const st = useGameStore.getState()
-      if (st.status === 'GRABBING' || st.status === 'COIN') markInterrupted()
+      // 라운드 도중 이탈하면 이번 판에 쓴 강냉이를 다음 진입 때 반환
+      if (st.status === 'GRABBING' || st.status === 'COIN') {
+        markInterrupted(st.roundCost || CHANNEL_MAP[st.channel].cost)
+      }
     }
     const onShow = (e: PageTransitionEvent) => {
       if (e.persisted) clearInterrupted()
@@ -145,7 +187,7 @@ export default function App() {
       )}
 
       {inGame && photoMode && <PhotoBar />}
-      {inGame && !photoMode && (
+      {inGame && !photoMode && !inLobby && (
         <div className={`ui-layer${leftHanded ? ' swap-hands' : ''}`}>
           <HUD />
           <Joystick />
@@ -154,19 +196,31 @@ export default function App() {
           <PerfPanel />
         </div>
       )}
+      {inGame && !photoMode && <ToonelandHeader />}
+      {inGame && !photoMode && inLobby && <LobbyScreen />}
+      {changeNotice > 0 && (
+        <div className="odds-notice" role="status">
+          {t.oddsNotice}
+        </div>
+      )}
 
       <LoadingScreen onRetry={retryLoad} />
       {status === 'ERROR' && <ErrorScreen />}
-      {status === 'TUTORIAL' && <Tutorial />}
-      {status === 'RESULT' && overlay === 'none' && <ResultModal />}
+      {!consent && inGame && <ConsentModal />}
+      {status === 'TUTORIAL' && consent && !inLobby && <Tutorial />}
+      {status === 'RESULT' && overlay === 'none' && !inLobby && <ResultModal />}
       {status === 'PAUSED' && <PauseMenu />}
-      {status === 'COMPLETED' && overlay === 'none' && <CompletedScreen />}
+      {status === 'COMPLETED' && overlay === 'none' && !inLobby && <CompletedScreen />}
       {overlay === 'settings' && <SettingsPanel />}
       {overlay === 'help' && <HelpModal />}
       {overlay === 'history' && <HistoryDrawer />}
       {overlay === 'confirmRestart' && <ConfirmRestart />}
       {overlay === 'confirmClear' && <ConfirmClear />}
       {overlay === 'album' && <AlbumPanel />}
+      {overlay === 'admin' && <AdminPanel />}
+      {overlay === 'playHistory' && <PlayHistoryPanel />}
+      {overlay === 'inventory' && <InventoryPanel />}
+      {overlay === 'charge' && <ChargeModal />}
     </div>
   )
 }

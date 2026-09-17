@@ -1,22 +1,28 @@
 import { remainingToys, useGameStore } from '../store/gameStore'
+import { useAdminStore } from '../store/adminStore'
 import { sound } from '../audio/soundManager'
 import { useT } from '../i18n'
 import { refs } from '../store/refs'
-import { GRIP, COIN } from '../config/gameConfig'
+import { CHANNEL_MAP } from '../config/toonelandConfig'
 import { createShareCard, downloadDataUrl } from '../utils/shareCard'
 
 export function ResultModal() {
   const resultInfo = useGameStore((s) => s.resultInfo)
   const successes = useGameStore((s) => s.successes)
   const toys = useGameStore((s) => s.toys)
-  const coins = useGameStore((s) => s.coins)
+  const kernels = useGameStore((s) => s.kernels)
+  const channel = useGameStore((s) => s.channel)
+  const payoutInfo = useGameStore((s) => s.payoutInfo)
   const playAgain = useGameStore((s) => s.playAgain)
   const closeResult = useGameStore((s) => s.closeResult)
   const openOverlay = useGameStore((s) => s.openOverlay)
+  const pityAfter = useAdminStore((s) => s.odds.pityAfter)
   const t = useT()
   if (!resultInfo) return null
   const ok = resultInfo.result === 'success'
   const remaining = remainingToys(toys)
+  const cost = CHANNEL_MAP[channel].cost
+  const lack = kernels < cost
 
   return (
     <div className="modal-backdrop see-through" role="dialog" aria-modal="true" aria-label={t.result.aria}>
@@ -44,11 +50,21 @@ export function ResultModal() {
                 ? t.result.bounced
                 : t.result.failBody}
         </p>
-        {ok && <p className="hint-text">{t.result.coinReward(COIN.winReward)}</p>}
-        {!ok && refs.slipStreak >= GRIP.pityAfter && (
+        {ok && payoutInfo && (
+          <p className="payout-line">
+            {t.result.prizeLine(payoutInfo.prizeName ?? '', payoutInfo.label)}
+          </p>
+        )}
+        {ok && payoutInfo?.type === 'inventory' && (
+          <p className="hint-text">{t.result.inventoryNote}</p>
+        )}
+        {!ok && payoutInfo?.type === 'cashback' && (
+          <p className="payout-line">{t.result.cashbackLine(payoutInfo.amount)}</p>
+        )}
+        {!ok && pityAfter > 0 && refs.slipStreak >= pityAfter && (
           <p className="hint-text">{t.result.pityReady}</p>
         )}
-        {coins === 0 && <p className="hint-text">{t.result.noCoins}</p>}
+        {lack && <p className="hint-text">{t.result.noCoins}</p>}
         <div className="btn-row">
           <button
             className="btn"
@@ -62,13 +78,12 @@ export function ResultModal() {
           <button
             className="btn primary"
             autoFocus
-            disabled={remaining > 0 && coins === 0}
             onClick={() => {
               sound.play('click')
               playAgain()
             }}
           >
-            {remaining > 0 ? t.result.playAgain : t.result.viewSummary}
+            {remaining > 0 ? t.result.playAgain(cost) : t.result.viewSummary}
           </button>
         </div>
         {ok && (
@@ -82,7 +97,7 @@ export function ResultModal() {
                 statLine: t.share.statLine(t.result.seconds((resultInfo.timeMs / 1000).toFixed(1))),
                 footer: t.share.footer,
               })
-              downloadDataUrl(url, 'claw-share.png')
+              downloadDataUrl(url, 'tooneland-pick.png')
             }}
           >
             📤 {t.share.button}

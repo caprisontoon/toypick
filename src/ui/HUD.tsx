@@ -10,7 +10,7 @@ export function HUD() {
   const attempts = useGameStore((s) => s.attempts)
   const toys = useGameStore((s) => s.toys)
   const successes = useGameStore((s) => s.successes)
-  const coins = useGameStore((s) => s.coins)
+  const kernels = useGameStore((s) => s.kernels)
   const settings = useGameStore((s) => s.settings)
   const updateSettings = useGameStore((s) => s.updateSettings)
   const pause = useGameStore((s) => s.pause)
@@ -74,7 +74,7 @@ export function HUD() {
           <span className={`hud-chip hide-mobile status-${status.toLowerCase()}`}>
             {t.status[status] ?? status}
           </span>
-          <span className="hud-chip coin-chip">{t.hud.coins(coins)}</span>
+          <span className="hud-chip coin-chip">{t.hud.coins(kernels)}</span>
           <button
             className="hud-chip star-chip"
             aria-label={t.album.title}
@@ -92,7 +92,7 @@ export function HUD() {
             <div className="collection-bar" aria-label={t.hud.wins(successes)}>
               {Array.from({ length: Math.min(successes, 8) }).map((_, i) => (
                 <span key={i} className="collect-dog" aria-hidden>
-                  🐶
+                  🧸
                 </span>
               ))}
               {successes > 8 && <span className="collect-more">+{successes - 8}</span>}
@@ -162,8 +162,14 @@ export function HUD() {
               <button role="menuitem" onClick={() => { sound.play('click'); setMenuOpen(false); openOverlay('album') }}>
                 📔 {t.album.title}
               </button>
+              <button role="menuitem" onClick={() => { sound.play('click'); setMenuOpen(false); openOverlay('playHistory') }}>
+                🧾 {t.playHistory.title}
+              </button>
+              <button role="menuitem" onClick={() => { sound.play('click'); setMenuOpen(false); openOverlay('inventory') }}>
+                🎁 {t.inventory.title}
+              </button>
               <button role="menuitem" onClick={() => { sound.play('click'); setMenuOpen(false); openOverlay('history') }}>
-                🕘 {t.hud.history}
+                🕘 {t.history.title}
               </button>
               <button role="menuitem" onClick={() => { sound.play('click'); setMenuOpen(false); openOverlay('help') }}>
                 ❓ {t.hud.help}
@@ -192,7 +198,7 @@ export function HUD() {
       )}
       {resultInfo?.result === 'success' && (
         <div key={attempts2} className="coin-fly" aria-hidden>
-          🪙
+          🌽
         </div>
       )}
       {bonusVisible && (

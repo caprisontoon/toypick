@@ -25,7 +25,7 @@ export function LoadingScreen({ onRetry }: { onRetry: () => void }) {
     <div className="screen loading-screen" role="status" aria-live="polite">
       <h1 className="game-title">{t.title}</h1>
       <div className="loader-claw" aria-hidden>
-        🕹️
+        🌽
       </div>
       {!hasError && (
         <>

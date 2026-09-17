@@ -1,4 +1,6 @@
-/** Generates a result share card as a PNG data URL using a plain 2D canvas */
+/** 결과 공유 카드(PNG data URL)를 2D 캔버스로 그립니다 */
+const CARD_FONT = "'Jua', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', system-ui, sans-serif"
+
 export function createShareCard(opts: {
   title: string
   toyLine: string
@@ -16,23 +18,23 @@ export function createShareCard(opts: {
   grad.addColorStop(1, '#0c0722')
   ctx.fillStyle = grad
   ctx.fillRect(0, 0, w, h)
-  ctx.strokeStyle = 'rgba(255, 210, 87, 0.7)'
+  ctx.strokeStyle = 'rgba(255, 201, 60, 0.7)'
   ctx.lineWidth = 4
   ctx.strokeRect(10, 10, w - 20, h - 20)
   ctx.textAlign = 'center'
-  ctx.fillStyle = '#ffd257'
-  ctx.font = 'bold 40px system-ui, sans-serif'
+  ctx.fillStyle = '#ffc93c'
+  ctx.font = `bold 40px ${CARD_FONT}`
   ctx.fillText('🎉 ' + opts.title, w / 2, 92)
-  ctx.font = '64px system-ui'
-  ctx.fillText('🐶', w / 2, 175)
+  ctx.font = `64px ${CARD_FONT}`
+  ctx.fillText('🧸', w / 2, 175)
   ctx.fillStyle = '#ffffff'
-  ctx.font = 'bold 26px system-ui, sans-serif'
+  ctx.font = `bold 26px ${CARD_FONT}`
   ctx.fillText(opts.toyLine, w / 2, 225)
   ctx.fillStyle = '#cfc6ec'
-  ctx.font = '20px system-ui, sans-serif'
+  ctx.font = `20px ${CARD_FONT}`
   ctx.fillText(opts.statLine, w / 2, 265)
   ctx.fillStyle = 'rgba(255,255,255,0.55)'
-  ctx.font = '15px system-ui, sans-serif'
+  ctx.font = `15px ${CARD_FONT}`
   ctx.fillText(opts.footer, w / 2, 320)
   return c.toDataURL('image/png')
 }

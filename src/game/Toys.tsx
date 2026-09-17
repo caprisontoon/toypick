@@ -13,6 +13,11 @@ export function dogModelUrl(): string {
 
 /** Grab controller manipulates toy rigid bodies directly through this registry */
 export const toyRegistry = new Map<number, RapierRigidBody>()
+
+// 개발 모드에서 자동화 테스트 · 디버깅을 위해 인형 강체 목록 노출
+if (import.meta.env.DEV) {
+  ;(window as unknown as { __toyRegistry?: typeof toyRegistry }).__toyRegistry = toyRegistry
+}
 /** Per-toy visual scale driven by the collect animation; consumed by ToyInstances */
 const toyScale = new Map<number, number>()
 

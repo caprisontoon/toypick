@@ -11,7 +11,8 @@ export function minimapLayout(viewportW: number): { size: number; top: number; r
   const size = Math.min(RENDER.minimapMaxSize, Math.round(viewportW * 0.3))
   // Wide screens (PC): pull toward the center near the machine; narrow screens stay at the top-right corner
   const right = Math.max(10, Math.round(viewportW / 2 - 380 - size / 2))
-  return { size, top: 56, right }
+  // 투네랜드 헤더(약 52px)와 HUD 칩 줄 아래로 내려 배치
+  return { size, top: 100, right }
 }
 
 const BLIT_VERT = /* glsl */ `

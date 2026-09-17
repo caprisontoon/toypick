@@ -1,40 +1,40 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { clearInterrupted, markInterrupted } from '../store/gameStore'
 import { storageGet } from '../store/persistence'
-import { STORAGE_KEYS } from '../config/gameConfig'
+import { TOONELAND_KEYS } from '../config/toonelandConfig'
 
 const readWallet = () =>
-  storageGet(STORAGE_KEYS.wallet, { coins: 0, lastBonusDay: '', pendingRefund: false })
+  storageGet(TOONELAND_KEYS.wallet, { kernels: 0, cash: 0, lastBonusDay: '', pendingRefund: 0 })
 
-describe('interrupted-round refund flag', () => {
+describe('라운드 중단 시 강냉이 반환 예약', () => {
   beforeEach(() => {
     window.localStorage.setItem(
-      STORAGE_KEYS.wallet,
-      JSON.stringify({ coins: 10, lastBonusDay: '2026-1-1', pendingRefund: false }),
+      TOONELAND_KEYS.wallet,
+      JSON.stringify({ kernels: 10_000, cash: 0, lastBonusDay: '2026-1-1', pendingRefund: 0 }),
     )
   })
 
-  it('markInterrupted sets the flag without touching coins', () => {
-    markInterrupted()
+  it('markInterrupted는 보유 강냉이를 건드리지 않고 반환 예정 금액만 기록한다', () => {
+    markInterrupted(1000)
     const w = readWallet()
-    expect(w.pendingRefund).toBe(true)
-    expect(w.coins).toBe(10)
+    expect(w.pendingRefund).toBe(1000)
+    expect(w.kernels).toBe(10_000)
   })
 
-  it('is idempotent across repeated pagehide events', () => {
-    markInterrupted()
-    markInterrupted()
-    markInterrupted()
+  it('pagehide가 여러 번 발생해도 반환 금액이 누적되지 않는다', () => {
+    markInterrupted(1000)
+    markInterrupted(1000)
+    markInterrupted(1000)
     const w = readWallet()
-    expect(w.pendingRefund).toBe(true)
-    expect(w.coins).toBe(10) // still exactly one pending refund, no accumulation
+    expect(w.pendingRefund).toBe(1000)
+    expect(w.kernels).toBe(10_000)
   })
 
-  it('clearInterrupted drops the flag when the round resumes from bfcache', () => {
-    markInterrupted()
+  it('bfcache로 라운드가 이어지면 예약이 해제된다', () => {
+    markInterrupted(3000)
     clearInterrupted()
     const w = readWallet()
-    expect(w.pendingRefund).toBe(false)
-    expect(w.coins).toBe(10)
+    expect(w.pendingRefund).toBe(0)
+    expect(w.kernels).toBe(10_000)
   })
 })
