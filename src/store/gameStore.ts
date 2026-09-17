@@ -149,7 +149,8 @@ const defaultSettings: Settings = {
   sfx: true,
   vibration: true,
   minimap: true,
-  quality: 'high',
+  // 저사양 PC에서도 부드럽게 돌아가도록 기본값은 '부드럽게'
+  quality: 'low',
   difficulty: 'normal',
   debug: false,
   perfPanel: false,
