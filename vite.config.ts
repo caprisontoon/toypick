@@ -1,13 +1,16 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// GitHub Pages는 /<저장소명>/ 하위 경로로 서비스되므로 프로덕션 빌드에만 base를 지정합니다.
-// 투네랜드에 삽입할 때는 실제 서비스 경로로 바꿔주세요. (로컬 개발은 '/')
-const repoName = 'toypick'
+/**
+ * 배포 경로(base)
+ * - 기본값은 '/' — Vercel · 투네랜드처럼 도메인 루트(또는 자체 경로)로 서비스하는 환경
+ * - GitHub Pages처럼 하위 경로로 서비스할 때만 VITE_BASE_PATH로 지정합니다. (예: /toypick/)
+ */
+const basePath = process.env.VITE_BASE_PATH || '/'
 
-export default defineConfig(({ command }) => ({
+export default defineConfig({
   plugins: [react()],
-  base: command === 'build' ? `/${repoName}/` : '/',
+  base: basePath,
   server: { host: true },
   build: {
     // Vendor chunks: three / rapier (embedded wasm) / react rarely change,
@@ -22,4 +25,4 @@ export default defineConfig(({ command }) => ({
       },
     },
   },
-}))
+})
