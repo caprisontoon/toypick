@@ -1,5 +1,5 @@
 import { useMemo, useRef } from 'react'
-import { useGLTF } from '@react-three/drei'
+import { useGLTF, useTexture } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { RigidBody, CuboidCollider } from '@react-three/rapier'
 import * as THREE from 'three'
@@ -15,6 +15,58 @@ export function boxModelUrl(): string {
 const W = PHYSICS
 /** Coin slot: aligned with the coin-slot texture on the cabinet's front panel (below the red button) */
 export const COIN_SLOT = { x: -0.21, y: -0.655, z: 1.365 }
+
+/**
+ * 기계 위 간판(마키) — 모델에 새겨진 'THE CLAW' 글씨 위에 투네이션 로고판을 덮습니다.
+ * 수치는 캐비닛 모델(boxoutnew.glb) 간판 앞면의 삼각형을 실측한 값입니다.
+ *   앞면 범위 x -0.91~0.90 · y 2.05~2.53 · z 0.93~1.01, 법선 (0, -0.161, 0.987)
+ * 바깥 테두리는 남기고 안쪽 발광면만 덮도록 살짝 작게 잡았습니다.
+ */
+const MARQUEE = {
+  width: 1.66,
+  height: 0.38,
+  center: [0, 2.29, 0.97] as [number, number, number],
+  /** 기울기 — 위쪽이 앞으로 약 9.3° 기울어져 있습니다 */
+  tiltX: 0.162,
+  /** 투네이션 브랜드 블루 (로고 이미지 배경색) */
+  blue: '#519cff',
+}
+
+/** 간판 법선 방향으로 살짝 띄워 Z-파이팅을 막습니다 */
+function marqueeOffset(distance: number): [number, number, number] {
+  const [x, y, z] = MARQUEE.center
+  return [x, y - Math.sin(MARQUEE.tiltX) * distance, z + Math.cos(MARQUEE.tiltX) * distance]
+}
+
+/** 투네이션 로고 간판 */
+function Marquee() {
+  const logo = useTexture(`${import.meta.env.BASE_URL}brand/toonation-logo.png`)
+  logo.colorSpace = THREE.SRGBColorSpace
+  // 로고는 원본 비율(약 3.14:1)을 유지한 채 간판 높이에 맞춥니다
+  const logoHeight = MARQUEE.height * 0.84
+  const logoWidth = logoHeight * 3.14
+
+  return (
+    <group>
+      {/* 바탕판: 기존 글씨를 가리고 간판처럼 은은하게 빛납니다 */}
+      <mesh position={marqueeOffset(0.012)} rotation={[MARQUEE.tiltX, 0, 0]}>
+        <planeGeometry args={[MARQUEE.width, MARQUEE.height]} />
+        <meshStandardMaterial
+          color={MARQUEE.blue}
+          emissive={MARQUEE.blue}
+          emissiveIntensity={0.55}
+          roughness={0.6}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* 로고 */}
+      <mesh position={marqueeOffset(0.018)} rotation={[MARQUEE.tiltX, 0, 0]}>
+        <planeGeometry args={[logoWidth, logoHeight]} />
+        <meshBasicMaterial map={logo} transparent toneMapped={false} />
+      </mesh>
+    </group>
+  )
+}
 
 /** Cabinet model + static colliders (walls / floor / exit chute / guard rails), control panel joystick/button linked to input */
 export function Machine() {
@@ -96,6 +148,7 @@ export function Machine() {
   return (
     <>
       <primitive object={model} />
+      <Marquee />
       {/* Coin slot: golden panel over the model's coin-slot texture + vertical coin slit */}
       <mesh position={[COIN_SLOT.x, COIN_SLOT.y, COIN_SLOT.z]}>
         <boxGeometry args={[0.1, 0.22, 0.014]} />
