@@ -6,6 +6,7 @@ import { Scene } from './game/Scene'
 import { clearInterrupted, markInterrupted, useGameStore } from './store/gameStore'
 import { detectWebGL } from './utils/capabilities'
 import { useKeyboard } from './hooks/useKeyboard'
+import { useEmbedFrame } from './hooks/useEmbedFrame'
 import { sound } from './audio/soundManager'
 import { HUD } from './ui/HUD'
 import { Joystick } from './ui/Joystick'
@@ -92,6 +93,10 @@ export default function App() {
     document.title = t.title
     document.documentElement.lang = language === 'zh' ? 'zh-CN' : language === 'en' ? 'en' : 'ko'
   }, [language, t.title])
+
+  // 투네이션 홈의 '투네 랜드' iframe 안에서는 로비 높이만큼 iframe을 늘려 안쪽 스크롤을 없앰
+  const lobbyShown = inLobby && !photoMode && !['BOOT', 'LOADING', 'ERROR', 'UNSUPPORTED'].includes(status)
+  useEmbedFrame(lobbyShown)
 
   // Coin sound: played uniformly when entering COIN state
   useEffect(() => {
