@@ -1881,3 +1881,38 @@ select:disabled {
     margin-left: 0;
   }
 }
+
+/* ---------- 투네이션 홈 iframe 안에서 (html.embedded) ---------- */
+/* 로비는 iframe이 내용 높이만큼 늘어나므로 안쪽 스크롤 대신 부모 페이지 스크롤을 사용 */
+html.embedded .lobby {
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+/* 팝업 · 안내는 iframe 전체가 아니라 화면에 보이는 구간 가운데에 표시 */
+html.embedded .modal-backdrop {
+  top: var(--embed-top, 0px);
+  bottom: auto;
+  height: var(--embed-h, 100%);
+}
+
+html.embedded .modal,
+html.embedded .wide-modal {
+  max-height: calc(var(--embed-h, 100vh) * 0.84);
+}
+
+html.embedded .admin-body {
+  max-height: calc(var(--embed-h, 100vh) * 0.68);
+}
+
+html.embedded .daily-bonus-toast {
+  top: calc(var(--embed-top, 0px) + 64px);
+}
+
+html.embedded .achievement-toast {
+  top: calc(var(--embed-top, 0px) + 100px);
+}
+
+html.embedded .odds-notice {
+  top: calc(var(--embed-top, 0px) + 64px + env(safe-area-inset-top));
+}

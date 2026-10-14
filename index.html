@@ -747,7 +747,7 @@ a { color: inherit; text-decoration: none; }
 .toonaland-section{background:var(--theme-light,#fff);border-radius:16px;padding:20px 0 0;margin-top:25px;}
 .toonaland-section[hidden],#donator-home-page[hidden]{display:none;}
 .toonaland-title{font-size:20px;font-weight:700;margin:0 0 16px;color:var(--theme-text-dark,#141619);}
-#toonaland-frame{display:block;width:100%;height:calc(100vh - 140px);min-height:640px;border:0;border-radius:16px;background:#f4f6f8;}
+#toonaland-frame{display:block;width:100%;height:calc(100vh - 140px);min-height:640px;border:0;border-radius:16px;background:#f4f6f8;overflow:hidden;}
 </style>
 </head>
 <body class="__variable_ccdd42">
@@ -777,11 +777,45 @@ a { color: inherit; text-decoration: none; }
       frame.title='투네 랜드';
       frame.allow='autoplay; fullscreen; clipboard-write';
       frame.allowFullscreen=true;
+      frame.setAttribute('scrolling','no');
+      frame.addEventListener('load',sendViewport);
       land.appendChild(frame);
     }
     homePage.hidden=true; land.hidden=false;
     setActive(landBtn); history.replaceState(null,'','#toonaland'); window.scrollTo(0,0);
+    sendViewport();
   }
+  // 게임이 원하는 높이로 iframe을 맞춰 안쪽 스크롤 없이 페이지 스크롤 하나로 보이게 함
+  // (로비: 내용 높이 / 게임 중: 기본 높이)
+  window.addEventListener('message',function(e){
+    if(!frame||e.source!==frame.contentWindow)return;
+    var d=e.data;
+    if(!d||d.type!=='toonaland:height')return;
+    var wasLobby=!!frame.style.height;
+    frame.style.height=typeof d.height==='number'&&d.height>0?d.height+'px':'';
+    // 로비에서 아래로 내려 채널을 고른 뒤 게임이 시작되면, 게임 화면이 보이도록 위치를 맞춤
+    if(wasLobby&&!frame.style.height){
+      var top=frame.getBoundingClientRect().top;
+      if(top<0||top>window.innerHeight*0.5)window.scrollTo(0,window.scrollY+top-16);
+    }
+    sendViewport();
+  });
+  // iframe 중 화면에 보이는 구간을 게임에 알려 팝업이 보이는 곳 가운데에 뜨게 함
+  var vpQueued=false;
+  function sendViewport(){
+    if(!frame||land.hidden||!frame.contentWindow)return;
+    var r=frame.getBoundingClientRect();
+    var top=Math.max(0,-r.top);
+    var bottom=Math.min(r.height,window.innerHeight-r.top);
+    frame.contentWindow.postMessage({type:'toonaland:viewport',top:Math.round(top),height:Math.round(Math.max(0,bottom-top))},'*');
+  }
+  function queueViewport(){
+    if(vpQueued)return;
+    vpQueued=true;
+    requestAnimationFrame(function(){vpQueued=false;sendViewport();});
+  }
+  window.addEventListener('scroll',queueViewport,{passive:true});
+  window.addEventListener('resize',queueViewport);
   function showHome(){
     land.hidden=true; homePage.hidden=false;
     setActive(homeBtn); history.replaceState(null,'',location.pathname+location.search);
