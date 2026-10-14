@@ -748,6 +748,16 @@ a { color: inherit; text-decoration: none; }
 .toonaland-section[hidden],#donator-home-page[hidden]{display:none;}
 .toonaland-title{font-size:20px;font-weight:700;margin:0 0 16px;color:var(--theme-text-dark,#141619);}
 #toonaland-frame{display:block;width:100%;height:calc(100vh - 140px);min-height:640px;border:0;border-radius:16px;background:#f4f6f8;overflow:hidden;}
+/* 모바일: 메뉴 버튼으로 왼쪽 메뉴를 서랍처럼 열고, 게임은 상단 바 아래 화면을 꽉 채움 */
+#donator-mobile-menu-backdrop{display:none;}
+@media (max-width:47.99rem){
+  aside.donator-drawer-open{display:block;position:fixed;top:0;bottom:0;left:0;z-index:60;width:min(280px,86vw);padding:8px 0 16px 16px;overflow-y:auto;background:var(--theme-light,#fff);box-shadow:4px 0 24px rgba(0,0,0,.18);}
+  aside.donator-drawer-open > div > div{position:static;height:auto;min-height:calc(100dvh - 24px);}
+  #donator-mobile-menu-backdrop.open{display:block;position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.4);}
+  .toonaland-section{margin-top:0;padding-top:16px;border-radius:0;}
+  .toonaland-title{padding:0 20px;}
+  #toonaland-frame{height:calc(100dvh - 3.5714285714rem);min-height:480px;border-radius:0;}
+}
 </style>
 </head>
 <body class="__variable_ccdd42">
@@ -767,6 +777,21 @@ a { color: inherit; text-decoration: none; }
   land.innerHTML='<h2 class="toonaland-title">투네 랜드</h2>';
   homePage.parentNode.insertBefore(land,homePage.nextSibling);
   var frame=null;
+  var mobileTitle=document.getElementById('donator-mobile-page-title-output');
+  var mobileHeader=document.getElementById('donator-mobile-menu-open-button').closest('header');
+  var isMobile=function(){return window.matchMedia('(max-width:47.99rem)').matches;};
+  // 모바일: 상단 ☰ 버튼으로 왼쪽 메뉴를 서랍처럼 열고 닫음
+  var aside=landBtn.closest('aside');
+  var backdrop=document.createElement('div');
+  backdrop.id='donator-mobile-menu-backdrop';
+  document.body.appendChild(backdrop);
+  function openDrawer(){aside.classList.add('donator-drawer-open');backdrop.classList.add('open');}
+  function closeDrawer(){aside.classList.remove('donator-drawer-open');backdrop.classList.remove('open');}
+  document.getElementById('donator-mobile-menu-open-button').addEventListener('click',openDrawer);
+  backdrop.addEventListener('click',closeDrawer);
+  window.addEventListener('keydown',function(e){if(e.key==='Escape')closeDrawer();});
+  // 상단 바(모바일)에 가리지 않도록 게임 위치를 맞출 때 쓰는 여백
+  function topOffset(){return mobileHeader&&mobileHeader.offsetHeight?mobileHeader.offsetHeight:16;}
   function setActive(btn){document.querySelectorAll('[id^="donator-side-menu-"]').forEach(function(b){b.style.color='';});if(btn)btn.style.color='#519cff';}
   function showLand(){
     // 게임은 처음 열 때만 불러오고, 홈 ↔ 투네 랜드를 오가도 진행 상태를 유지
@@ -781,7 +806,8 @@ a { color: inherit; text-decoration: none; }
       frame.addEventListener('load',sendViewport);
       land.appendChild(frame);
     }
-    homePage.hidden=true; land.hidden=false;
+    homePage.hidden=true; land.hidden=false; closeDrawer();
+    if(mobileTitle)mobileTitle.textContent='투네 랜드';
     setActive(landBtn); history.replaceState(null,'','#toonaland'); window.scrollTo(0,0);
     sendViewport();
   }
@@ -794,9 +820,10 @@ a { color: inherit; text-decoration: none; }
     var wasLobby=!!frame.style.height;
     frame.style.height=typeof d.height==='number'&&d.height>0?d.height+'px':'';
     // 로비에서 아래로 내려 채널을 고른 뒤 게임이 시작되면, 게임 화면이 보이도록 위치를 맞춤
+    // (모바일은 게임이 화면을 꽉 채우도록 항상 상단 바 바로 아래로 맞춤)
     if(wasLobby&&!frame.style.height){
       var top=frame.getBoundingClientRect().top;
-      if(top<0||top>window.innerHeight*0.5)window.scrollTo(0,window.scrollY+top-16);
+      if(isMobile()||top<0||top>window.innerHeight*0.5)window.scrollTo(0,window.scrollY+top-topOffset());
     }
     sendViewport();
   });
@@ -805,7 +832,8 @@ a { color: inherit; text-decoration: none; }
   function sendViewport(){
     if(!frame||land.hidden||!frame.contentWindow)return;
     var r=frame.getBoundingClientRect();
-    var top=Math.max(0,-r.top);
+    // 모바일은 상단 바가 화면 위를 덮고 있으므로 그 아래부터를 보이는 구간으로 봄
+    var top=Math.max(0,(isMobile()?topOffset():0)-r.top);
     var bottom=Math.min(r.height,window.innerHeight-r.top);
     frame.contentWindow.postMessage({type:'toonaland:viewport',top:Math.round(top),height:Math.round(Math.max(0,bottom-top))},'*');
   }
@@ -817,11 +845,13 @@ a { color: inherit; text-decoration: none; }
   window.addEventListener('scroll',queueViewport,{passive:true});
   window.addEventListener('resize',queueViewport);
   function showHome(){
-    land.hidden=true; homePage.hidden=false;
+    land.hidden=true; homePage.hidden=false; closeDrawer();
+    if(mobileTitle)mobileTitle.textContent='홈';
     setActive(homeBtn); history.replaceState(null,'',location.pathname+location.search);
   }
   landBtn.addEventListener('click',showLand);
   homeBtn.addEventListener('click',showHome);
+  document.getElementById('donator-mobile-home-link').addEventListener('click',function(e){e.preventDefault();showHome();});
   if(location.hash==='#toonaland')showLand();
 })();</script>
 </body>
