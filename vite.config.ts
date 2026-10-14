@@ -1,3 +1,4 @@
+import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -16,6 +17,11 @@ export default defineConfig({
     // Vendor chunks: three / rapier (embedded wasm) / react rarely change,
     // so returning visitors keep them cached across app deploys
     rollupOptions: {
+      // index.html: 투네이션 도네이터 홈(첫 화면) · game.html: 인형뽑기 게임 (홈의 '투네 랜드' 메뉴에서 iframe으로 표시)
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        game: resolve(__dirname, 'game.html'),
+      },
       output: {
         manualChunks: {
           three: ['three'],

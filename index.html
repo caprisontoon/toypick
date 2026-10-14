@@ -1,39 +1,794 @@
-<!doctype html>
-<html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-    />
-    <meta name="theme-color" content="#171033" />
-    <meta name="description" content="투네랜드 인형뽑기 — 강냉이로 즐기는 3D 인형뽑기 미니게임" />
-    <link
-      rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌽%3C/text%3E%3C/svg%3E"
-    />
-    <!-- 투네랜드 톤앤매너: 둥근 느낌의 한글 폰트 (로딩 실패 시 시스템 한글 폰트로 대체) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700&display=swap"
-    />
-    <title>투네랜드 인형뽑기</title>
-    <script>
-      ;(function () {
-        function setRem() {
-          var w = Math.min(document.documentElement.clientWidth, 768)
-          document.documentElement.style.fontSize = (w / 375) * 16 + 'px'
-        }
-        setRem()
-        window.addEventListener('resize', setRem)
-        window.addEventListener('orientationchange', setRem)
-      })()
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<!DOCTYPE html>
+<!--
+  투네이션 도네이터 홈 (정적 스냅샷) — 사이트 첫 화면
+  - 원본: stg 도네이터 홈 화면을 그대로 복제한 정적 HTML (React 동작/드롭다운 등은 동작하지 않음)
+  - 개인정보(이메일)는 sample@email.com 으로 마스킹
+  - 왼쪽 메뉴 '투네 랜드'(#donator-side-menu-toonaland-button) 클릭 시
+    컨텐츠 영역의 검색창 · 메인 배너는 그대로 두고, 그 아래 홈 본문 자리에 인형뽑기 게임(game.html)을 iframe 으로 표시
+    '도네이터 홈' 클릭 시 원래 홈 본문으로 복귀. URL #toonaland 로 바로 진입 가능.
+  - 이미지/폰트는 stg.tooth.one 절대경로로 불러옴
+-->
+<html lang="ko" data-theme="light" data-theme-version="1">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>투네이션 - 투네 랜드 샘플</title>
+<style>
+@font-face { font-family: pretendard; src: url("https://stg.tooth.one/donator/_next/static/media/119cf01b445a4dc3-s.p.woff2") format("woff2"); font-display: swap; font-weight: 400; }
+@font-face { font-family: pretendard; src: url("https://stg.tooth.one/donator/_next/static/media/594abaeb2223a020-s.p.woff2") format("woff2"); font-display: swap; font-weight: 500; }
+@font-face { font-family: pretendard; src: url("https://stg.tooth.one/donator/_next/static/media/ce18f4c4c6464983-s.p.woff2") format("woff2"); font-display: swap; font-weight: 600; }
+@font-face { font-family: pretendard; src: url("https://stg.tooth.one/donator/_next/static/media/e725ed3d1f6bc360-s.p.woff2") format("woff2"); font-display: swap; font-weight: 300; }
+@font-face { font-family: pretendard; src: url("https://stg.tooth.one/donator/_next/static/media/e00e15f44d7b58c0-s.p.woff2") format("woff2"); font-display: swap; font-weight: 700; }
+@font-face { font-family: "pretendard Fallback"; src: local("Arial"); ascent-override: 93.76%; descent-override: 23.75%; line-gap-override: 0%; size-adjust: 101.55%; }
+.__variable_ccdd42 { --font-pretendard: "pretendard","pretendard Fallback"; }
+:root { --primitive-neutral-50: #ffffff; --primitive-neutral-300: #dee5ec; --primitive-neutral-400: #c7ced6; --primitive-neutral-500: #aeb6bf; --primitive-neutral-600: #838a93; --primitive-neutral-700: #595f68; --primitive-neutral-800: #464c54; --primitive-neutral-900: #343a40; --primitive-neutral-950: #212529; --primitive-blue-400: #6ea3ff; --primitive-blue-500: #519cff; --color-white: #fff; --color-black: #000}
+:root[data-theme="light"][data-theme-version="1"] { --theme-light: #ffffff; --theme-light-hover: white; --theme-dark: #030303; --theme-gray: #606060; --theme-gray50: #f8fafb; --theme-gray400: #bcc4cc; --theme-gray500: #868e96; --theme-gray600: #656d75; --theme-gray900: #212529; --theme-blue50: #ebf3ff; --theme-blue400: #519cff; --theme-border-migrate-color: rgba(0,0,0,0.1); --theme-text-dark: #030303; --theme-surface-primary: var(--primitive-neutral-50); --theme-border-focus: var(--primitive-blue-500); --theme-border-pressed: var(--primitive-neutral-600); --theme-switch-surface-off: var(--primitive-neutral-300); --theme-switch-surface-off-hover: var(--primitive-neutral-400); --theme-switch-thumb: var(--primitive-neutral-50); --theme-switch-thumb-shadow-off: 0 4px 12px 0 #2125291a; --theme-field-border-focus: var(--primitive-blue-500); --theme-field-surface-error: #f849491a}
+:root[data-theme="dark"][data-theme-version="1"] {--theme-light: #202124; --theme-light-hover: #2c2d32; --theme-dark: #e8eaed; --theme-gray: #707070; --theme-gray50: #31373d; --theme-gray400: #656d75; --theme-gray500: #747b81; --theme-gray600: #bcc4cc; --theme-gray900: #f1f3f5; --theme-blue50: #203b65; --theme-blue400: #519cff; --theme-border-migrate-color: rgba(255,255,255,0.1); --theme-text-dark: #e8eaed; --theme-surface-primary: var(--primitive-neutral-950); --theme-border-focus: var(--primitive-blue-400); --theme-border-pressed: var(--primitive-neutral-500); --theme-switch-surface-off: var(--primitive-neutral-800); --theme-switch-surface-off-hover: var(--primitive-neutral-700); --theme-switch-thumb: var(--primitive-neutral-950); --theme-switch-thumb-shadow-off: 0 4px 12px 0 #2125291a; --theme-field-border-focus: var(--primitive-blue-400); --theme-field-surface-error: #f849491a}
+@layer properties {
+@supports (((-webkit-hyphens:none)) and (not (margin-trim:inline))) or ((-moz-orient:inline) and (not (color:rgb(from red r g b)))) {
+*, ::backdrop, ::after, ::before { --tw-translate-x: 0; --tw-translate-y: 0; --tw-translate-z: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-scale-z: 1; --tw-rotate-x: initial; --tw-rotate-y: initial; --tw-rotate-z: initial; --tw-skew-x: initial; --tw-skew-y: initial; --tw-space-y-reverse: 0; --tw-divide-y-reverse: 0; --tw-border-style: solid; --tw-leading: initial; --tw-font-weight: initial; --tw-tracking: initial; --tw-ordinal: initial; --tw-slashed-zero: initial; --tw-numeric-figure: initial; --tw-numeric-spacing: initial; --tw-numeric-fraction: initial; --tw-shadow: 0 0 #0000; --tw-shadow-color: initial; --tw-shadow-alpha: 100%; --tw-inset-shadow: 0 0 #0000; --tw-inset-shadow-color: initial; --tw-inset-shadow-alpha: 100%; --tw-ring-color: initial; --tw-ring-shadow: 0 0 #0000; --tw-inset-ring-color: initial; --tw-inset-ring-shadow: 0 0 #0000; --tw-ring-inset: initial; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-offset-shadow: 0 0 #0000; --tw-outline-style: solid; --tw-blur: initial; --tw-brightness: initial; --tw-contrast: initial; --tw-grayscale: initial; --tw-hue-rotate: initial; --tw-invert: initial; --tw-opacity: initial; --tw-saturate: initial; --tw-sepia: initial; --tw-drop-shadow: initial; --tw-drop-shadow-color: initial; --tw-drop-shadow-alpha: 100%; --tw-drop-shadow-size: initial; --tw-backdrop-blur: initial; --tw-backdrop-brightness: initial; --tw-backdrop-contrast: initial; --tw-backdrop-grayscale: initial; --tw-backdrop-hue-rotate: initial; --tw-backdrop-invert: initial; --tw-backdrop-opacity: initial; --tw-backdrop-saturate: initial; --tw-backdrop-sepia: initial; --tw-duration: initial; --tw-ease: initial; --tw-content: ""; }
+}
+}
+@layer theme {
+:host, :root { --font-sans: ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"; --font-mono: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; --color-blue-500: oklch(62.3% .214 259.815); --color-purple-500: oklch(62.7% .265 303.9); --color-gray-50: oklch(98.5% .002 247.839); --color-black: #000; --color-white: #fff; --spacing: .25rem; --container-sm: 24rem; --container-md: 28rem; --container-xl: 36rem; --container-2xl: 42rem; --container-3xl: 48rem; --container-5xl: 64rem; --container-6xl: 72rem; --text-xs: .75rem; --text-xs--line-height: calc(1 / .75); --text-sm: .875rem; --text-sm--line-height: calc(1.25 / .875); --text-base: 1rem; --text-base--line-height: calc(1.5 / 1); --text-lg: 1.125rem; --text-lg--line-height: calc(1.75 / 1.125); --text-xl: 1.25rem; --text-xl--line-height: calc(1.75 / 1.25); --text-2xl: 1.5rem; --text-2xl--line-height: calc(2 / 1.5); --font-weight-light: 300; --font-weight-normal: 400; --font-weight-medium: 500; --font-weight-semibold: 600; --font-weight-bold: 700; --font-weight-extrabold: 800; --font-weight-black: 900; --tracking-normal: 0em; --tracking-widest: .1em; --leading-tight: 1.25; --leading-snug: 1.375; --leading-normal: 1.5; --radius-sm: .25rem; --radius-md: .375rem; --radius-lg: .5rem; --radius-xl: .75rem; --radius-2xl: 1rem; --radius-3xl: 1.5rem; --ease-in: cubic-bezier(.4,0,1,1); --ease-out: cubic-bezier(0,0,.2,1); --ease-in-out: cubic-bezier(.4,0,.2,1); --animate-spin: spin 1s linear infinite; --animate-pulse: pulse 2s cubic-bezier(.4,0,.6,1) infinite; --aspect-video: 16/9; --default-transition-duration: .15s; --default-transition-timing-function: cubic-bezier(.4,0,.2,1); --default-font-family: var(--font-sans); --default-mono-font-family: var(--font-mono); }
+}
+@layer base {
+*, ::backdrop, ::after, ::before { box-sizing: border-box; border: 0px solid; margin: 0px; padding: 0px; }
+:host, html { text-size-adjust: 100%; tab-size: 4; line-height: 1.5; font-family: var(--default-font-family,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"); font-feature-settings: var(--default-font-feature-settings,normal); font-variation-settings: var(--default-font-variation-settings,normal); -webkit-tap-highlight-color: transparent; }
+h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; }
+a { color: inherit; text-decoration: inherit; }
+b, strong { font-weight: bolder; }
+audio, canvas, embed, iframe, img, object, svg, video { vertical-align: middle; display: block; }
+img, video { max-width: 100%; height: auto; }
+button, input, optgroup, select, textarea { font: inherit; letter-spacing: inherit; color: inherit; opacity: 1; background-color: rgba(0, 0, 0, 0); border-radius: 0px; }
+:where(select:is([multiple], [size])) optgroup { font-weight: bolder; }
+:where(select:is([multiple], [size])) optgroup option { padding-inline-start: 20px; }
+::placeholder { opacity: 1; }
+@supports (not ((-webkit-appearance:-apple-pay-button))) or (contain-intrinsic-size:1px) {
+::placeholder { color: currentcolor; }
+@supports (color:color-mix(in lab,red,red)) {
+::placeholder { color: color-mix(currentcolor, transparent); }
+}
+}
+::-webkit-search-decoration { appearance: none; }
+::-webkit-date-and-time-value { min-height: 1lh; text-align: inherit; }
+::-webkit-datetime-edit { display: inline-flex; }
+::-webkit-datetime-edit-fields-wrapper { padding: 0px; }
+::-webkit-datetime-edit, ::-webkit-datetime-edit-year-field { padding-block: 0px; }
+::-webkit-datetime-edit-day-field, ::-webkit-datetime-edit-month-field { padding-block: 0px; }
+::-webkit-datetime-edit-hour-field, ::-webkit-datetime-edit-minute-field { padding-block: 0px; }
+::-webkit-datetime-edit-millisecond-field, ::-webkit-datetime-edit-second-field { padding-block: 0px; }
+::-webkit-datetime-edit-meridiem-field { padding-block: 0px; }
+::-webkit-calendar-picker-indicator { line-height: 1; }
+button, input:where([type="button"], [type="reset"], [type="submit"]) { appearance: button; }
+::-webkit-inner-spin-button, ::-webkit-outer-spin-button { height: auto; }
+[hidden]:where(:not([hidden="until-found"])) { display: none !important; }
+*, ::after, ::before { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; height: 100%; }
+body { scroll-behavior: smooth; color: var(--theme-gray900); font-family: "Pretendard JP Variable", "Pretendard JP", Pretendard, "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", Helvetica, sans-serif; line-height: 1; }
+button, input, select, textarea { font-family: Pretendard, sans-serif; }
+}
+@layer components;
+@layer utilities {
+.pointer-events-none { pointer-events: none; }
+.absolute, .sr-only { position: absolute; }
+.relative { position: relative; }
+.sticky { position: sticky; }
+.top-0 { top: 0px; }
+.top-1\/2 { top: 50%; }
+.top-2 { top: calc(var(--spacing) * 2); }
+.top-4 { top: calc(var(--spacing) * 4); }
+.bottom-1\.25 { bottom: calc(var(--spacing) * 1.25); }
+.left-0 { left: 0px; }
+.left-1\.25 { left: calc(var(--spacing) * 1.25); }
+.left-1\/2 { left: 50%; }
+.left-2 { left: calc(var(--spacing) * 2); }
+.left-\[2px\] { left: 2px; }
+.z-10 { z-index: 10; }
+.z-30 { z-index: 30; }
+.mx-auto { margin-inline: auto; }
+.my-2 { margin-block: calc(var(--spacing) * 2); }
+.my-5 { margin-block: calc(var(--spacing) * 5); }
+.mt-0 { margin-top: 0px; }
+.mt-1 { margin-top: var(--spacing); }
+.mt-1\.5 { margin-top: calc(var(--spacing) * 1.5); }
+.mt-2 { margin-top: calc(var(--spacing) * 2); }
+.mt-3 { margin-top: calc(var(--spacing) * 3); }
+.mt-4 { margin-top: calc(var(--spacing) * 4); }
+.mt-5 { margin-top: calc(var(--spacing) * 5); }
+.mt-5\.5 { margin-top: calc(var(--spacing) * 5.5); }
+.mt-6\.25 { margin-top: calc(var(--spacing) * 6.25); }
+.mt-8 { margin-top: calc(var(--spacing) * 8); }
+.-mr-4 { margin-right: calc(var(--spacing) * -4); }
+.mr-1 { margin-right: var(--spacing); }
+.mb-1 { margin-bottom: var(--spacing); }
+.mb-5 { margin-bottom: calc(var(--spacing) * 5); }
+.ml-auto { margin-left: auto; }
+.flex { display: flex; }
+.grid { display: grid; }
+.hidden { display: none; }
+.inline-block { display: inline-block; }
+.inline-flex { display: inline-flex; }
+.aspect-244\/280 { aspect-ratio: 244 / 280; }
+.aspect-720\/160 { aspect-ratio: 720 / 160; }
+.aspect-video { aspect-ratio: var(--aspect-video); }
+.size-2\.5 { width: calc(var(--spacing) * 2.5); height: calc(var(--spacing) * 2.5); }
+.size-3\.5 { width: calc(var(--spacing) * 3.5); height: calc(var(--spacing) * 3.5); }
+.size-4 { width: calc(var(--spacing) * 4); height: calc(var(--spacing) * 4); }
+.size-5 { width: calc(var(--spacing) * 5); height: calc(var(--spacing) * 5); }
+.size-7\.5 { width: calc(var(--spacing) * 7.5); height: calc(var(--spacing) * 7.5); }
+.size-8 { width: calc(var(--spacing) * 8); height: calc(var(--spacing) * 8); }
+.size-10 { width: calc(var(--spacing) * 10); height: calc(var(--spacing) * 10); }
+.size-11 { width: calc(var(--spacing) * 11); height: calc(var(--spacing) * 11); }
+.size-12 { width: calc(var(--spacing) * 12); height: calc(var(--spacing) * 12); }
+.size-full { width: 100%; height: 100%; }
+.h-4 { height: calc(var(--spacing) * 4); }
+.h-5 { height: calc(var(--spacing) * 5); }
+.h-6 { height: calc(var(--spacing) * 6); }
+.h-7 { height: calc(var(--spacing) * 7); }
+.h-9\.25 { height: calc(var(--spacing) * 9.25); }
+.h-10 { height: calc(var(--spacing) * 10); }
+.h-11 { height: calc(var(--spacing) * 11); }
+.h-\[3\.5714285714rem\] { height: 3.57143rem; }
+.h-\[calc\(100vh-32px\)\] { height: calc(-32px + 100vh); }
+.h-\[min\(56\.25vw\,510px\)\] { height: min(56.25vw, 510px); }
+.h-full { height: 100%; }
+.h-px { height: 1px; }
+.max-h-\[min\(80vh\,760px\)\] { max-height: min(80vh, 760px); }
+.max-h-\[min\(92vh\,720px\)\] { max-height: min(92vh, 720px); }
+.min-h-55 { min-height: calc(var(--spacing) * 55); }
+.min-h-\[calc\(100vh-3\.5714285714rem\)\] { min-height: calc(-3.57143rem + 100vh); }
+.min-h-\[min\(78vh\,768px\)\] { min-height: min(78vh, 768px); }
+.\!w-\[min\(calc\(100vw-12px\)\,360px\)\] { width: min(-12px + 100vw, 360px) !important; }
+.\!w-\[min\(calc\(100vw-32px\)\,320px\)\] { width: min(-32px + 100vw, 320px) !important; }
+.w-4 { width: calc(var(--spacing) * 4); }
+.w-57 { width: calc(var(--spacing) * 57); }
+.w-\[38px\] { width: 38px; }
+.w-\[min\(213px\,100\%\)\] { width: min(213px, 100%); }
+.w-\[min\(243px\,100\%\)\] { width: min(243px, 100%); }
+.w-\[min\(253px\,100\%\)\] { width: min(253px, 100%); }
+.w-\[min\(362px\,100\%\)\] { width: min(362px, 100%); }
+.w-\[min\(calc\(100\%-2\.5rem\)\,28rem\)\] { width: min(100% - 2.5rem, 28rem); }
+.w-\[min\(calc\(100\%-2\.5rem\)\,38rem\)\] { width: min(100% - 2.5rem, 38rem); }
+.w-\[min\(calc\(100vw-16px\)\,343px\)\] { width: min(-16px + 100vw, 343px); }
+.w-\[min\(calc\(100vw-16px\)\,375px\)\] { width: min(-16px + 100vw, 375px); }
+.w-\[min\(calc\(100vw-16px\)\,420px\)\] { width: min(-16px + 100vw, 420px); }
+.w-\[min\(calc\(100vw-32px\)\,320px\)\] { width: min(-32px + 100vw, 320px); }
+.w-\[min\(calc\(100vw-32px\)\,360px\)\] { width: min(-32px + 100vw, 360px); }
+.w-\[min\(calc\(100vw-32px\)\,420px\)\] { width: min(-32px + 100vw, 420px); }
+.w-\[min\(calc\(100vw-32px\)\,560px\)\] { width: min(-32px + 100vw, 560px); }
+.w-\[min\(calc\(100vw-32px\)\,640px\)\] { width: min(-32px + 100vw, 640px); }
+.w-\[min\(calc\(100vw-32px\)\,720px\)\] { width: min(-32px + 100vw, 720px); }
+.w-auto { width: auto; }
+.w-full { width: 100%; }
+.max-w-29 { max-width: calc(var(--spacing) * 29); }
+.max-w-35 { max-width: calc(var(--spacing) * 35); }
+.max-w-450 { max-width: calc(var(--spacing) * 450); }
+.min-w-0 { min-width: 0px; }
+.min-w-12 { min-width: calc(var(--spacing) * 12); }
+.flex-1 { flex: 1 1 0%; }
+.shrink-0 { flex-shrink: 0; }
+.-translate-x-1\/2 { --tw-translate-x: calc(calc(1 / 2 * 100%) * -1); }
+.-translate-x-1\/2, .-translate-x-4 { translate: var(--tw-translate-x) var(--tw-translate-y); }
+.translate-x-0 { --tw-translate-x: 0px; }
+.translate-x-0, .translate-x-1\/2 { translate: var(--tw-translate-x) var(--tw-translate-y); }
+.-translate-y-1\/2 { --tw-translate-y: calc(calc(1 / 2 * 100%) * -1); }
+.-translate-y-1\/2, .-translate-y-3 { translate: var(--tw-translate-x) var(--tw-translate-y); }
+.cursor-pointer { cursor: pointer; }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0px, 1fr)); }
+.grid-cols-\[1fr_auto\] { grid-template-columns: 1fr auto; }
+.grid-cols-\[2\.286rem_minmax\(0\,1fr\)_minmax\(0\,1fr\)\] { grid-template-columns: 2.286rem minmax(0px, 1fr) minmax(0px, 1fr); }
+.grid-cols-\[2\.875rem_minmax\(0\,1fr\)\] { grid-template-columns: 2.875rem minmax(0px, 1fr); }
+.grid-cols-\[3rem_minmax\(0\,1\.3fr\)_minmax\(0\,1fr\)\] { grid-template-columns: 3rem minmax(0px, 1.3fr) minmax(0px, 1fr); }
+.grid-cols-\[13\.125rem_minmax\(0\,1fr\)\] { grid-template-columns: 13.125rem minmax(0px, 1fr); }
+.grid-cols-\[13rem_minmax\(0\,1fr\)\] { grid-template-columns: 13rem minmax(0px, 1fr); }
+.grid-cols-\[24px_minmax\(0\,1fr\)_24px\] { grid-template-columns: 24px minmax(0px, 1fr) 24px; }
+.grid-cols-\[30px_3\.5625px_40px_3\.5625px_minmax\(0\,1fr\)\] { grid-template-columns: 30px 3.5625px 40px 3.5625px minmax(0px, 1fr); }
+.grid-cols-\[44px_1fr\] { grid-template-columns: 44px 1fr; }
+.grid-cols-\[46px_minmax\(0\,1fr\)_42px\] { grid-template-columns: 46px minmax(0px, 1fr) 42px; }
+.grid-cols-\[80px_minmax\(0\,1fr\)\] { grid-template-columns: 80px minmax(0px, 1fr); }
+.grid-cols-\[83px_91px_83px_minmax\(0\,1fr\)\] { grid-template-columns: 83px 91px 83px minmax(0px, 1fr); }
+.grid-cols-\[102px_minmax\(0\,1fr\)\] { grid-template-columns: 102px minmax(0px, 1fr); }
+.grid-cols-\[106px_minmax\(0\,1fr\)\] { grid-template-columns: 106px minmax(0px, 1fr); }
+.grid-cols-\[119px_minmax\(0\,1fr\)\] { grid-template-columns: 119px minmax(0px, 1fr); }
+.grid-cols-\[123px_minmax\(0\,1fr\)_114px\] { grid-template-columns: 123px minmax(0px, 1fr) 114px; }
+.grid-cols-\[190px_minmax\(0\,1fr\)\] { grid-template-columns: 190px minmax(0px, 1fr); }
+.grid-cols-\[210px_minmax\(0\,1fr\)\] { grid-template-columns: 210px minmax(0px, 1fr); }
+.grid-cols-\[auto_minmax\(0\,1fr\)\] { grid-template-columns: auto minmax(0px, 1fr); }
+.grid-cols-\[minmax\(0\,1\.2fr\)_minmax\(0\,1fr\)_8rem\] { grid-template-columns: minmax(0px, 1.2fr) minmax(0px, 1fr) 8rem; }
+.grid-cols-\[minmax\(0\,1fr\)_24px\] { grid-template-columns: minmax(0px, 1fr) 24px; }
+.grid-cols-\[minmax\(0\,1fr\)_40px\] { grid-template-columns: minmax(0px, 1fr) 40px; }
+.grid-cols-\[minmax\(0\,1fr\)_54px\] { grid-template-columns: minmax(0px, 1fr) 54px; }
+.grid-cols-\[repeat\(4\,120px\)\] { grid-template-columns: repeat(4, 120px); }
+.grid-cols-\[repeat\(4\,minmax\(0\,1fr\)\)\] { grid-template-columns: repeat(4, minmax(0px, 1fr)); }
+.grid-rows-\[1fr_auto\] { grid-template-rows: 1fr auto; }
+.grid-rows-\[auto_auto_1fr\] { grid-template-rows: auto auto 1fr; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.gap-0\.5 { gap: calc(var(--spacing) * .5); }
+.gap-1 { gap: var(--spacing); }
+.gap-1\.5 { gap: calc(var(--spacing) * 1.5); }
+.gap-1\.25 { gap: calc(var(--spacing) * 1.25); }
+.gap-2 { gap: calc(var(--spacing) * 2); }
+.gap-2\.5 { gap: calc(var(--spacing) * 2.5); }
+.gap-3 { gap: calc(var(--spacing) * 3); }
+.gap-4 { gap: calc(var(--spacing) * 4); }
+.gap-5 { gap: calc(var(--spacing) * 5); }
+.gap-x-1 { column-gap: var(--spacing); }
+.gap-x-2 { column-gap: calc(var(--spacing) * 2); }
+.gap-y-1 { row-gap: var(--spacing); }
+.gap-y-4 { row-gap: calc(var(--spacing) * 4); }
+.gap-y-6 { row-gap: calc(var(--spacing) * 6); }
+.truncate { text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+.overflow-hidden { overflow: hidden; }
+.overflow-y-auto { overflow-y: auto; }
+.rounded { border-radius: 0.25rem; }
+.rounded-\[4\.2px\] { border-radius: 4.2px; }
+.rounded-full { border-radius: 3.40282e+38px; }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-sm { border-radius: var(--radius-sm); }
+.border { border-style: var(--tw-border-style); border-width: 1px; }
+.border-0 { border-style: var(--tw-border-style); border-width: 0px; }
+.border-b { border-bottom-style: var(--tw-border-style); border-bottom-width: 1px; }
+.border-b-2 { border-bottom-style: var(--tw-border-style); border-bottom-width: 2px; }
+.border-none { --tw-border-style: none; border-style: none; }
+.border-\(--theme-border-migrate-color\) { border-color: var(--theme-border-migrate-color); }
+.border-\(--theme-text-dark\) { border-color: var(--theme-text-dark); }
+.border-\[\#dfe3e8\] { border-color: rgb(223, 227, 232); }
+.border-\[rgb\(0_0_0_\/_0\.1\)\], .border-\[rgb\(0_0_0_\/_10\%\)\], .border-\[rgba\(0\,0\,0\,0\.1\)\] { border-color: rgba(0, 0, 0, 0.1); }
+.border-\[rgba\(255\,255\,255\,0\.72\)\] { border-color: rgba(255, 255, 255, 0.72); }
+.border-black\/10 { border-color: rgba(0, 0, 0, 0.1); }
+@supports (color:color-mix(in lab,red,red)) {
+.border-black\/10 { border-color: color-mix(in oklab,var(--color-black) 10%,transparent); }
+}
+.bg-\(--theme-blue50\) { background-color: var(--theme-blue50); }
+.bg-\(--theme-blue400\) { background-color: var(--theme-blue400); }
+.bg-\(--theme-gray50\) { background-color: var(--theme-gray50); }
+.bg-\(--theme-light\) { background-color: var(--theme-light); }
+.bg-\[\#e8edf2\] { background-color: rgb(232, 237, 242); }
+.bg-\[\#f7f7f8\] { background-color: rgb(247, 247, 248); }
+.bg-\[\#fd392a\] { background-color: rgb(253, 57, 42); }
+.bg-\[rgba\(0\,0\,0\,0\.45\)\] { background-color: rgba(0, 0, 0, 0.45); }
+.bg-\[rgba\(0\,0\,0\,0\.48\)\] { background-color: rgba(0, 0, 0, 0.48); }
+.bg-\[rgba\(17\,18\,20\,0\.72\)\] { background-color: rgba(17, 18, 20, 0.72); }
+.bg-\[rgba\(33\,37\,41\,0\.5\)\] { background-color: rgba(33, 37, 41, 0.5); }
+.bg-\[rgba\(33\,150\,243\,0\.5\)\] { background-color: rgba(33, 150, 243, 0.5); }
+.bg-\[rgba\(51\,51\,51\,0\.96\)\] { background-color: rgba(51, 51, 51, 0.96); }
+.bg-\[rgba\(247\,247\,248\,0\.9\)\] { background-color: rgba(247, 247, 248, 0.9); }
+.bg-\[rgba\(255\,255\,255\,0\.16\)\] { background-color: rgba(255, 255, 255, 0.16); }
+.bg-\[var\(--theme-switch-surface-off\)\] { background-color: var(--theme-switch-surface-off); }
+.bg-\[var\(--theme-switch-thumb\)\] { background-color: var(--theme-switch-thumb); }
+.bg-black\/10 { background-color: rgba(0, 0, 0, 0.1); }
+@supports (color:color-mix(in lab,red,red)) {
+.bg-black\/10 { background-color: color-mix(in oklab,var(--color-black) 10%,transparent); }
+}
+.bg-black\/80 { background-color: rgba(0, 0, 0, 0.8); }
+@supports (color:color-mix(in lab,red,red)) {
+.bg-black\/80 { background-color: color-mix(in oklab,var(--color-black) 80%,transparent); }
+}
+.bg-transparent { background-color: rgba(0, 0, 0, 0); }
+.bg-white { background-color: var(--color-white); }
+.bg-white\/45 { background-color: rgba(255, 255, 255, 0.45); }
+@supports (color:color-mix(in lab,red,red)) {
+.bg-white\/45 { background-color: color-mix(in oklab,var(--color-white) 45%,transparent); }
+}
+.bg-white\/50 { background-color: rgba(255, 255, 255, 0.5); }
+@supports (color:color-mix(in lab,red,red)) {
+.bg-white\/50 { background-color: color-mix(in oklab,var(--color-white) 50%,transparent); }
+}
+.bg-white\/90 { background-color: rgba(255, 255, 255, 0.9); }
+@supports (color:color-mix(in lab,red,red)) {
+.bg-white\/90 { background-color: color-mix(in oklab,var(--color-white) 90%,transparent); }
+}
+.bg-\[linear-gradient\(135deg\,rgba\(226\,232\,240\,0\.88\)\,rgba\(244\,247\,251\,0\.96\)\)\] { background-image: linear-gradient(135deg, rgba(226, 232, 240, 0.88), rgba(244, 247, 251, 0.96)); }
+.bg-\[linear-gradient\(145deg\,rgba\(19\,29\,51\,0\.95\)_0\%\,rgba\(28\,45\,87\,0\.92\)_52\%\,rgba\(39\,68\,125\,0\.92\)_100\%\)\] { background-image: linear-gradient(145deg, rgba(19, 29, 51, 0.95), rgba(28, 45, 87, 0.92) 52%, rgba(39, 68, 125, 0.92)); }
+.bg-\[linear-gradient\(180deg\,rgba\(0\,0\,0\,0\)_0\%\,rgba\(0\,0\,0\,0\.7\)_100\%\)\] { background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.7)); }
+.bg-\[linear-gradient\(180deg\,rgba\(255\,255\,255\,0\.06\)_0\%\,rgba\(255\,255\,255\,0\.02\)_100\%\)\] { background-image: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)); }
+.bg-\[radial-gradient\(circle_at_top\,rgba\(81\,156\,255\,0\.18\)_0\%\,rgba\(13\,19\,33\,0\.08\)_32\%\,transparent_62\%\)\] { background-image: radial-gradient(circle at center top, rgba(81, 156, 255, 0.18) 0px, rgba(13, 19, 33, 0.08) 32%, rgba(0, 0, 0, 0) 62%); }
+.bg-size-\[16px_1px\,16px_1px\,16px_1px\] { background-size: 16px 1px, 16px 1px, 16px 1px; }
+.bg-position-\[0_2px\,0_7\.6px\,0_13\.2px\] { background-position: 0px 2px, 0px 7.6px, 0px 13.2px; }
+.object-cover { object-fit: cover; }
+.p-0 { padding: 0px; }
+.px-1 { padding-inline: var(--spacing); }
+.px-1\.5 { padding-inline: calc(var(--spacing) * 1.5); }
+.px-2\.5 { padding-inline: calc(var(--spacing) * 2.5); }
+.px-3 { padding-inline: calc(var(--spacing) * 3); }
+.px-4 { padding-inline: calc(var(--spacing) * 4); }
+.px-5 { padding-inline: calc(var(--spacing) * 5); }
+.py-0 { padding-block: 0px; }
+.py-0\.5 { padding-block: calc(var(--spacing) * .5); }
+.py-0\.75 { padding-block: calc(var(--spacing) * .75); }
+.py-1\.5 { padding-block: calc(var(--spacing) * 1.5); }
+.py-2 { padding-block: calc(var(--spacing) * 2); }
+.py-2\.5 { padding-block: calc(var(--spacing) * 2.5); }
+.py-4 { padding-block: calc(var(--spacing) * 4); }
+.py-5 { padding-block: calc(var(--spacing) * 5); }
+.py-\[6\.5px\] { padding-block: 6.5px; }
+.pt-5 { padding-top: calc(var(--spacing) * 5); }
+.pt-10 { padding-top: calc(var(--spacing) * 10); }
+.pr-4 { padding-right: calc(var(--spacing) * 4); }
+.pb-2 { padding-bottom: calc(var(--spacing) * 2); }
+.pb-5 { padding-bottom: calc(var(--spacing) * 5); }
+.text-center { text-align: center; }
+.text-end { text-align: end; }
+.text-left { text-align: left; }
+.text-sm { font-size: var(--text-sm); line-height: var(--tw-leading,var(--text-sm--line-height)); }
+.text-\[1\.25rem\] { font-size: 1.25rem; }
+.text-\[12px\] { font-size: 12px; }
+.text-\[13px\] { font-size: 13px; }
+.text-\[14px\] { font-size: 14px; }
+.text-\[15px\] { font-size: 15px; }
+.text-\[16px\] { font-size: 16px; }
+.text-\[17px\] { font-size: 17px; }
+.text-\[18px\] { font-size: 18px; }
+.text-\[20px\] { font-size: 20px; }
+.leading-4 { --tw-leading: calc(var(--spacing) * 4); line-height: calc(var(--spacing) * 4); }
+.leading-4\.5 { --tw-leading: calc(var(--spacing) * 4.5); line-height: calc(var(--spacing) * 4.5); }
+.leading-5 { --tw-leading: calc(var(--spacing) * 5); line-height: calc(var(--spacing) * 5); }
+.leading-\[1\.6666666667\] { --tw-leading: 1.66667; line-height: 1.66667; }
+.leading-\[19\.5px\] { --tw-leading: 19.5px; line-height: 19.5px; }
+.leading-\[21px\] { --tw-leading: 21px; line-height: 21px; }
+.leading-\[normal\] { --tw-leading: normal; line-height: normal; }
+.leading-none { --tw-leading: 1; line-height: 1; }
+.leading-normal { --tw-leading: var(--leading-normal); line-height: var(--leading-normal); }
+.font-bold { --tw-font-weight: var(--font-weight-bold); font-weight: var(--font-weight-bold); }
+.font-light { --tw-font-weight: var(--font-weight-light); font-weight: var(--font-weight-light); }
+.font-medium { --tw-font-weight: var(--font-weight-medium); font-weight: var(--font-weight-medium); }
+.font-normal { --tw-font-weight: var(--font-weight-normal); font-weight: var(--font-weight-normal); }
+.font-semibold { --tw-font-weight: var(--font-weight-semibold); font-weight: var(--font-weight-semibold); }
+.break-all { word-break: break-all; }
+.text-ellipsis { text-overflow: ellipsis; }
+.whitespace-nowrap { white-space: nowrap; }
+.text-\(--theme-gray\) { color: var(--theme-gray); }
+.text-\(--theme-gray400\) { color: var(--theme-gray400); }
+.text-\(--theme-gray500\) { color: var(--theme-gray500); }
+.text-\(--theme-gray600\) { color: var(--theme-gray600); }
+.text-\(--theme-gray900\) { color: var(--theme-gray900); }
+.text-\(--theme-text-dark\) { color: var(--theme-text-dark); }
+.text-\[\#2196f3\] { color: rgb(33, 150, 243); }
+.text-\[\#141619\] { color: rgb(20, 22, 25); }
+.text-white { color: var(--color-white); }
+.underline { text-decoration-line: underline; }
+.opacity-50 { opacity: 0.5; }
+.opacity-100 { opacity: 1; }
+.shadow-\[0_-18px_48px_rgba\(0\,0\,0\,0\.16\)\] { --tw-shadow: 0 -18px 48px var(--tw-shadow-color,#00000029); }
+.shadow-\[0_-18px_48px_rgba\(0\,0\,0\,0\.16\)\], .shadow-\[0_0_0_1px_rgb\(0_0_0_\/_6\%\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_0_0_1px_rgba\(0\,0\,0\,0\.32\)\] { --tw-shadow: 0 0 0 1px var(--tw-shadow-color,#00000052); }
+.shadow-\[0_0_0_1px_rgba\(0\,0\,0\,0\.32\)\], .shadow-\[0_0_0_1px_rgba\(33\,150\,243\,0\.24\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_0_0_1px_rgba\(33\,150\,243\,0\.24\)\] { --tw-shadow: 0 0 0 1px var(--tw-shadow-color,#2196f33d); }
+.shadow-\[0_1px_0_rgba\(238\,242\,245\,1\)\] { --tw-shadow: 0 1px 0 var(--tw-shadow-color,#eef2f5); }
+.shadow-\[0_1px_0_rgba\(238\,242\,245\,1\)\], .shadow-\[0_1px_2px_rgb\(0_0_0_\/_8\%\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_1px_2px_rgba\(0\,0\,0\,0\.1\)\,inset_0_1px_rgba\(255\,255\,255\,0\.15\)\] { --tw-shadow: 0 1px 2px var(--tw-shadow-color,#0000001a),inset 0 1px var(--tw-shadow-color,#ffffff26); box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_1px_2px_rgba\(0\,0\,0\,0\.04\)\] { --tw-shadow: 0 1px 2px var(--tw-shadow-color,#0000000a); box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_2px_4px_rgba\(0\,0\,0\,0\.1\)\,inset_0_1px_rgba\(255\,255\,255\,0\.3\)\] { --tw-shadow: 0 2px 4px var(--tw-shadow-color,#0000001a),inset 0 1px var(--tw-shadow-color,#ffffff4d); box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_2px_4px_rgba\(0\,0\,0\,0\.04\)\] { --tw-shadow: 0 2px 4px var(--tw-shadow-color,#0000000a); }
+.shadow-\[0_2px_4px_rgba\(0\,0\,0\,0\.04\)\], .shadow-\[0_2px_6px_rgba\(20\,22\,25\,0\.08\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_2px_6px_rgba\(20\,22\,25\,0\.08\)\] { --tw-shadow: 0 2px 6px var(--tw-shadow-color,#14161914); }
+.shadow-\[0_2px_8px_rgba\(0\,0\,0\,0\.2\)\] { --tw-shadow: 0 2px 8px var(--tw-shadow-color,#0003); }
+.shadow-\[0_2px_8px_rgba\(0\,0\,0\,0\.2\)\], .shadow-\[0_3px_6px_rgba\(0\,0\,0\,0\.16\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_3px_6px_rgba\(0\,0\,0\,0\.16\)\] { --tw-shadow: 0 3px 6px var(--tw-shadow-color,#00000029); }
+.shadow-\[0_4px_8px_rgba\(0\,0\,0\,0\.1\)\] { --tw-shadow: 0 4px 8px var(--tw-shadow-color,#0000001a); }
+.shadow-\[0_4px_12px_rgb\(31_41_55_\/_12\%\)\], .shadow-\[0_4px_8px_rgba\(0\,0\,0\,0\.1\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_4px_14px_rgba\(20\,22\,25\,0\.08\)\] { --tw-shadow: 0 4px 14px var(--tw-shadow-color,#14161914); }
+.shadow-\[0_4px_14px_rgba\(20\,22\,25\,0\.08\)\], .shadow-\[0_6px_16px_rgba\(15\,23\,42\,0\.06\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_6px_16px_rgba\(15\,23\,42\,0\.06\)\] { --tw-shadow: 0 6px 16px var(--tw-shadow-color,#0f172a0f); }
+.shadow-\[0_8px_18px_rgba\(0\,0\,0\,0\.24\)\] { --tw-shadow: 0 8px 18px var(--tw-shadow-color,#0000003d); }
+.shadow-\[0_8px_18px_rgba\(0\,0\,0\,0\.24\)\], .shadow-\[0_8px_20px_rgba\(0\,0\,0\,0\.18\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_8px_20px_rgba\(0\,0\,0\,0\.18\)\] { --tw-shadow: 0 8px 20px var(--tw-shadow-color,#0000002e); }
+.shadow-\[0_8px_26px_rgba\(20\,22\,25\,0\.06\)\] { --tw-shadow: 0 8px 26px var(--tw-shadow-color,#1416190f); }
+.shadow-\[0_10px_24px_rgba\(0\,0\,0\,0\.22\)\], .shadow-\[0_8px_26px_rgba\(20\,22\,25\,0\.06\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_10px_24px_rgba\(0\,0\,0\,0\.22\)\] { --tw-shadow: 0 10px 24px var(--tw-shadow-color,#00000038); }
+.shadow-\[0_10px_24px_rgba\(0\,0\,0\,0\.24\)\] { --tw-shadow: 0 10px 24px var(--tw-shadow-color,#0000003d); }
+.shadow-\[0_10px_24px_rgba\(0\,0\,0\,0\.24\)\], .shadow-\[0_10px_24px_rgba\(15\,23\,42\,0\.06\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_10px_24px_rgba\(15\,23\,42\,0\.06\)\] { --tw-shadow: 0 10px 24px var(--tw-shadow-color,#0f172a0f); }
+.shadow-\[0_10px_24px_rgba\(20\,22\,25\,0\.18\)\] { --tw-shadow: 0 10px 24px var(--tw-shadow-color,#1416192e); }
+.shadow-\[0_10px_24px_rgba\(20\,22\,25\,0\.18\)\], .shadow-\[0_10px_24px_rgba\(33\,150\,243\,0\.2\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_10px_24px_rgba\(33\,150\,243\,0\.2\)\] { --tw-shadow: 0 10px 24px var(--tw-shadow-color,#2196f333); }
+.shadow-\[0_10px_24px_rgba\(33\,150\,243\,0\.12\)\] { --tw-shadow: 0 10px 24px var(--tw-shadow-color,#2196f31f); }
+.shadow-\[0_10px_24px_rgba\(138\,90\,0\,0\.08\)\], .shadow-\[0_10px_24px_rgba\(33\,150\,243\,0\.12\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_10px_24px_rgba\(138\,90\,0\,0\.08\)\] { --tw-shadow: 0 10px 24px var(--tw-shadow-color,#8a5a0014); }
+.shadow-\[0_10px_24px_rgba\(255\,77\,79\,0\.2\)\] { --tw-shadow: 0 10px 24px var(--tw-shadow-color,#ff4d4f33); }
+.shadow-\[0_10px_24px_rgba\(255\,77\,79\,0\.2\)\], .shadow-\[0_12px_24px_rgba\(0\,0\,0\,0\.12\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_12px_24px_rgba\(0\,0\,0\,0\.12\)\] { --tw-shadow: 0 12px 24px var(--tw-shadow-color,#0000001f); }
+.shadow-\[0_12px_24px_rgba\(8\,15\,30\,0\.18\)\] { --tw-shadow: 0 12px 24px var(--tw-shadow-color,#080f1e2e); }
+.shadow-\[0_12px_24px_rgba\(20\,22\,25\,0\.04\)\], .shadow-\[0_12px_24px_rgba\(8\,15\,30\,0\.18\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_12px_24px_rgba\(20\,22\,25\,0\.04\)\] { --tw-shadow: 0 12px 24px var(--tw-shadow-color,#1416190a); }
+.shadow-\[0_12px_24px_rgba\(20\,22\,25\,0\.05\)\] { --tw-shadow: 0 12px 24px var(--tw-shadow-color,#1416190d); }
+.shadow-\[0_12px_24px_rgba\(20\,22\,25\,0\.05\)\], .shadow-\[0_12px_30px_rgba\(20\,22\,25\,0\.05\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_12px_30px_rgba\(20\,22\,25\,0\.05\)\] { --tw-shadow: 0 12px 30px var(--tw-shadow-color,#1416190d); }
+.shadow-\[0_12px_32px_rgba\(15\,23\,42\,0\.05\)\] { --tw-shadow: 0 12px 32px var(--tw-shadow-color,#0f172a0d); }
+.shadow-\[0_12px_32px_rgba\(15\,23\,42\,0\.05\)\], .shadow-\[0_12px_32px_rgba\(15\,23\,42\,0\.12\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_12px_32px_rgba\(15\,23\,42\,0\.12\)\] { --tw-shadow: 0 12px 32px var(--tw-shadow-color,#0f172a1f); }
+.shadow-\[0_14px_30px_rgba\(20\,22\,25\,0\.06\)\] { --tw-shadow: 0 14px 30px var(--tw-shadow-color,#1416190f); }
+.shadow-\[0_14px_30px_rgba\(20\,22\,25\,0\.06\)\], .shadow-\[0_14px_32px_rgba\(20\,22\,25\,0\.05\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_14px_32px_rgba\(20\,22\,25\,0\.05\)\] { --tw-shadow: 0 14px 32px var(--tw-shadow-color,#1416190d); }
+.shadow-\[0_14px_32px_rgba\(20\,22\,25\,0\.14\)\] { --tw-shadow: 0 14px 32px var(--tw-shadow-color,#14161924); }
+.shadow-\[0_14px_32px_rgba\(20\,22\,25\,0\.14\)\], .shadow-\[0_16px_30px_rgba\(15\,23\,42\,0\.12\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_16px_30px_rgba\(15\,23\,42\,0\.12\)\] { --tw-shadow: 0 16px 30px var(--tw-shadow-color,#0f172a1f); }
+.shadow-\[0_18px_40px_rgba\(20\,22\,25\,0\.06\)\] { --tw-shadow: 0 18px 40px var(--tw-shadow-color,#1416190f); }
+.shadow-\[0_18px_40px_rgba\(20\,22\,25\,0\.06\)\], .shadow-\[0_20px_40px_rgba\(20\,22\,25\,0\.2\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_20px_40px_rgba\(20\,22\,25\,0\.2\)\] { --tw-shadow: 0 20px 40px var(--tw-shadow-color,#14161933); }
+.shadow-\[0_20px_45px_rgba\(0\,0\,0\,0\.28\)\] { --tw-shadow: 0 20px 45px var(--tw-shadow-color,#00000047); }
+.shadow-\[0_20px_45px_rgba\(0\,0\,0\,0\.28\)\], .shadow-\[0_20px_45px_rgba\(19\,29\,51\,0\.28\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_20px_45px_rgba\(19\,29\,51\,0\.28\)\] { --tw-shadow: 0 20px 45px var(--tw-shadow-color,#131d3347); }
+.shadow-\[0_20px_48px_rgb\(0_0_0_\/24\%\)\], .shadow-\[0_20px_48px_rgba\(15\,23\,42\,0\.22\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_20px_48px_rgba\(15\,23\,42\,0\.22\)\] { --tw-shadow: 0 20px 48px var(--tw-shadow-color,#0f172a38); }
+.shadow-\[0_20px_50px_rgba\(20\,22\,25\,0\.05\)\] { --tw-shadow: 0 20px 50px var(--tw-shadow-color,#1416190d); }
+.shadow-\[0_20px_50px_rgba\(20\,22\,25\,0\.05\)\], .shadow-\[0_20px_50px_rgba\(20\,22\,25\,0\.06\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_20px_50px_rgba\(20\,22\,25\,0\.06\)\] { --tw-shadow: 0 20px 50px var(--tw-shadow-color,#1416190f); }
+.shadow-\[0_24px_48px_rgba\(0\,0\,0\,0\.22\)\] { --tw-shadow: 0 24px 48px var(--tw-shadow-color,#00000038); }
+.shadow-\[0_24px_48px_rgba\(0\,0\,0\,0\.22\)\], .shadow-\[0_24px_64px_rgba\(0\,0\,0\,0\.18\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_24px_64px_rgba\(0\,0\,0\,0\.18\)\] { --tw-shadow: 0 24px 64px var(--tw-shadow-color,#0000002e); }
+.shadow-\[0_24px_80px_rgba\(20\,22\,25\,0\.08\)\] { --tw-shadow: 0 24px 80px var(--tw-shadow-color,#14161914); }
+.shadow-\[0_24px_80px_rgba\(20\,22\,25\,0\.08\)\], .shadow-\[0_25px_60px_rgba\(0\,0\,0\,0\.35\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[0_25px_60px_rgba\(0\,0\,0\,0\.35\)\] { --tw-shadow: 0 25px 60px var(--tw-shadow-color,#00000059); }
+.shadow-\[0_28px_60px_rgba\(0\,0\,0\,0\.35\)\] { --tw-shadow: 0 28px 60px var(--tw-shadow-color,#00000059); }
+.shadow-\[0_28px_60px_rgba\(0\,0\,0\,0\.35\)\], .shadow-\[0_28px_64px_rgb\(15_23_42_\/24\%\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[inset_0_0_0_1px_rgba\(0\,0\,0\,0\.12\)\] { --tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#0000001f); }
+.shadow-\[inset_0_0_0_1px_rgba\(0\,0\,0\,0\.12\)\], .shadow-\[inset_0_0_0_1px_rgba\(17\,18\,20\,0\.16\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[inset_0_0_0_1px_rgba\(17\,18\,20\,0\.16\)\] { --tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#11121429); }
+.shadow-\[inset_0_0_0_1px_var\(--theme-blue400\)\], .shadow-\[inset_0_1px_0_rgba\(17\,18\,20\,0\.04\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[inset_0_1px_0_rgba\(17\,18\,20\,0\.04\)\] { --tw-shadow: inset 0 1px 0 var(--tw-shadow-color,#1112140a); }
+.shadow-\[inset_0_1px_0_rgba\(255\,255\,255\,0\.18\)\] { --tw-shadow: inset 0 1px 0 var(--tw-shadow-color,#ffffff2e); }
+.shadow-\[inset_0_1px_0_rgba\(255\,255\,255\,0\.18\)\], .shadow-\[var\(--theme-popover-shadow\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-\[var\(--theme-switch-thumb-shadow-off\)\] { --tw-shadow: var(--theme-switch-thumb-shadow-off); }
+.shadow-\[var\(--theme-switch-thumb-shadow-off\)\], .shadow-\[var\(--theme-tooltip-shadow\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.shadow-sm { --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color,#0000001a),0 1px 2px -1px var(--tw-shadow-color,#0000001a); }
+.shadow-sm, .shadow-xl { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.brightness-0, .drop-shadow-\[0_2px_8px_rgba\(0\,0\,0\,0\.35\)\] { filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,); }
+.drop-shadow-\[0_2px_8px_rgba\(0\,0\,0\,0\.35\)\] { --tw-drop-shadow-size: drop-shadow(0 2px 8px var(--tw-drop-shadow-color,#00000059)); --tw-drop-shadow: var(--tw-drop-shadow-size); }
+.transition-colors { transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to; transition-timing-function: var(--tw-ease,var(--default-transition-timing-function)); transition-duration: var(--tw-duration,var(--default-transition-duration)); }
+.transition-opacity { transition-property: opacity; transition-timing-function: var(--tw-ease,var(--default-transition-timing-function)); transition-duration: var(--tw-duration,var(--default-transition-duration)); }
+.transition-transform { transition-property: transform, translate, scale, rotate; transition-timing-function: var(--tw-ease,var(--default-transition-timing-function)); transition-duration: var(--tw-duration,var(--default-transition-duration)); }
+.duration-150 { --tw-duration: .15s; transition-duration: 0.15s; }
+.duration-200 { --tw-duration: .2s; transition-duration: 0.2s; }
+.ease-in { --tw-ease: var(--ease-in); transition-timing-function: var(--ease-in); }
+.ease-in-out { --tw-ease: var(--ease-in-out); transition-timing-function: var(--ease-in-out); }
+.outline-none { --tw-outline-style: none; outline-style: none; }
+.\[clip-path\:polygon\(50\%_0\,100\%_100\%\,0_100\%\)\] { clip-path: polygon(50% 0px, 100% 100%, 0px 100%); }
+.placeholder\:text-\(--theme-text-dark\)::placeholder { color: var(--theme-text-dark); }
+.placeholder\:opacity-30::placeholder { opacity: 0.3; }
+.before\:absolute::before { content: var(--tw-content); position: absolute; }
+.before\:inset-0::before { content: var(--tw-content); inset: 0px; }
+.before\:top-1\/2::before { content: var(--tw-content); top: 50%; }
+.before\:top-\[-10px\]::before { content: var(--tw-content); top: -10px; }
+.before\:left-2::before { content: var(--tw-content); left: calc(var(--spacing) * 2); }
+.before\:left-\[-6px\]::before { content: var(--tw-content); left: -6px; }
+.before\:m-auto::before { content: var(--tw-content); margin: auto; }
+.before\:block::before { content: var(--tw-content); display: block; }
+.before\:flex::before { content: var(--tw-content); display: flex; }
+.before\:size-\[10px\]::before { content: var(--tw-content); width: 10px; height: 10px; }
+.before\:h-5::before { content: var(--tw-content); height: calc(var(--spacing) * 5); }
+.before\:w-5::before { content: var(--tw-content); width: calc(var(--spacing) * 5); }
+.before\:w-12::before { content: var(--tw-content); width: calc(var(--spacing) * 12); }
+.before\:-translate-y-1\/2::before { content: var(--tw-content); --tw-translate-y: calc(calc(1 / 2 * 100%) * -1); translate: var(--tw-translate-x) var(--tw-translate-y); }
+.before\:rotate-45::before { content: var(--tw-content); rotate: 45deg; }
+.before\:items-center::before { content: var(--tw-content); align-items: center; }
+.before\:justify-center::before { content: var(--tw-content); justify-content: center; }
+.before\:rounded-full::before { content: var(--tw-content); border-radius: 3.40282e+38px; }
+.before\:bg-\[\#666\]::before { content: var(--tw-content); background-color: rgb(102, 102, 102); }
+.before\:bg-\[rgba\(51\,51\,51\,0\.96\)\]::before { content: var(--tw-content); background-color: rgba(51, 51, 51, 0.96); }
+.before\:bg-\[url\(\'\/donator\/image\/favorites\/ic_heart\.svg\'\)\]::before { content: var(--tw-content); background-image: url("https://stg.tooth.one/donator/image/favorites/ic_heart.svg"); }
+.before\:bg-\[url\(\'\/donator\/image\/favorites\/ic_heart_on\.svg\'\)\]::before { content: var(--tw-content); background-image: url("https://stg.tooth.one/donator/image/favorites/ic_heart_on.svg"); }
+.before\:bg-contain::before { content: var(--tw-content); background-size: contain; }
+.before\:bg-center::before { content: var(--tw-content); background-position: 50% center; }
+.before\:bg-no-repeat::before { content: var(--tw-content); background-repeat: no-repeat; }
+.before\:text-\[12px\]::before { content: var(--tw-content); font-size: 12px; }
+.before\:text-\[14px\]::before { content: var(--tw-content); font-size: 14px; }
+.before\:leading-none::before { content: var(--tw-content); --tw-leading: 1; line-height: 1; }
+.before\:font-bold::before { content: var(--tw-content); --tw-font-weight: var(--font-weight-bold); font-weight: var(--font-weight-bold); }
+.before\:font-semibold::before { content: var(--tw-content); --tw-font-weight: var(--font-weight-semibold); font-weight: var(--font-weight-semibold); }
+.before\:tracking-\[-0\.14px\]::before { content: var(--tw-content); --tw-tracking: -.14px; letter-spacing: -0.14px; }
+.before\:text-\(--theme-dark\)::before { content: var(--tw-content); color: var(--theme-dark); }
+.before\:text-white::before { content: var(--tw-content); color: var(--color-white); }
+.before\:content-\[\'\'\]::before { --tw-content: ""; content: var(--tw-content); }
+.before\:content-\[\'목록\'\]::before { --tw-content: "목록"; content: var(--tw-content); }
+.before\:content-\[\'후원하기\'\]::before { --tw-content: "후원하기"; content: var(--tw-content); }
+.after\:ml-auto::after { content: var(--tw-content); margin-left: auto; }
+.after\:text-\[16px\]::after { content: var(--tw-content); font-size: 16px; }
+.after\:leading-none::after { content: var(--tw-content); --tw-leading: 1; line-height: 1; }
+.after\:text-\(--theme-gray900\)::after { content: var(--tw-content); color: var(--theme-gray900); }
+.after\:content-\[\'✎\'\]::after { --tw-content: "✎"; content: var(--tw-content); }
+@media (hover: hover) {
+.hover\:bg-\(--theme-light-hover\):hover { background-color: var(--theme-light-hover); }
+.hover\:bg-\[var\(--theme-switch-surface-off-hover\)\]:hover { background-color: var(--theme-switch-surface-off-hover); }
+.hover\:shadow-\[0_10px_24px_rgba\(15\,23\,42\,0\.1\)\]:hover { --tw-shadow: 0 10px 24px var(--tw-shadow-color,#0f172a1a); box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.focus-within\:hover\:bg-\[var\(--theme-field-surface-error\)\]:focus-within:hover { background-color: var(--theme-field-surface-error); }
+.focus-within\:hover\:bg-\[var\(--theme-surface-primary\)\]:focus-within:hover { background-color: var(--theme-surface-primary); }
+}
+.active\:bg-\[var\(--theme-border-pressed\)\]:active { background-color: var(--theme-border-pressed); }
+@media not all and (min-width: 1100px) {
+.max-\[1100px\]\:grid-cols-\[32px_minmax\(0\,1fr\)_36px\] { grid-template-columns: 32px minmax(0px, 1fr) 36px; }
+}
+@media (min-width: 1101px) {
+.min-\[1101px\]\:grid-cols-\[44px_minmax\(0\,1fr\)\] { grid-template-columns: 44px minmax(0px, 1fr); }
+.min-\[1101px\]\:grid-cols-\[72px_minmax\(0\,1fr\)\] { grid-template-columns: 72px minmax(0px, 1fr); }
+.min-\[1101px\]\:grid-cols-\[86px_minmax\(0\,1fr\)\] { grid-template-columns: 86px minmax(0px, 1fr); }
+.min-\[1101px\]\:grid-cols-\[86px_minmax\(0\,1fr\)_48px\] { grid-template-columns: 86px minmax(0px, 1fr) 48px; }
+.min-\[1101px\]\:grid-cols-\[96px_minmax\(0\,1fr\)\] { grid-template-columns: 96px minmax(0px, 1fr); }
+.min-\[1101px\]\:grid-cols-\[105px_minmax\(0\,1fr\)_auto\] { grid-template-columns: 105px minmax(0px, 1fr) auto; }
+.min-\[1101px\]\:grid-cols-\[105px_minmax\(0\,281px\)\] { grid-template-columns: 105px minmax(0px, 281px); }
+.min-\[1101px\]\:grid-cols-\[125px_minmax\(0\,1fr\)\] { grid-template-columns: 125px minmax(0px, 1fr); }
+.min-\[1101px\]\:grid-cols-\[150px_minmax\(0\,1fr\)\] { grid-template-columns: 150px minmax(0px, 1fr); }
+.min-\[1101px\]\:grid-cols-\[160px_minmax\(0\,1fr\)\] { grid-template-columns: 160px minmax(0px, 1fr); }
+.min-\[1101px\]\:grid-cols-\[168px_minmax\(0\,1fr\)\] { grid-template-columns: 168px minmax(0px, 1fr); }
+.min-\[1101px\]\:grid-cols-\[170px_minmax\(0\,1fr\)\] { grid-template-columns: 170px minmax(0px, 1fr); }
+.min-\[1101px\]\:grid-cols-\[188px_minmax\(0\,1fr\)\] { grid-template-columns: 188px minmax(0px, 1fr); }
+.min-\[1101px\]\:grid-cols-\[190px_minmax\(0\,1fr\)\] { grid-template-columns: 190px minmax(0px, 1fr); }
+.min-\[1101px\]\:grid-cols-\[minmax\(0\,1fr\)_360px\] { grid-template-columns: minmax(0px, 1fr) 360px; }
+.min-\[1101px\]\:grid-cols-\[minmax\(0\,1fr\)_400px\] { grid-template-columns: minmax(0px, 1fr) 400px; }
+}
+@media (min-width: 40rem) {
+.sm\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0px, 1fr)); }
+.sm\:grid-cols-\[repeat\(5\,minmax\(0\,1fr\)\)\] { grid-template-columns: repeat(5, minmax(0px, 1fr)); }
+.sm\:gap-x-4 { column-gap: calc(var(--spacing) * 4); }
+.sm\:gap-y-8 { row-gap: calc(var(--spacing) * 8); }
+}
+@media (min-width: 48rem) {
+.md\:absolute { position: absolute; }
+.md\:top-\[216\.296875px\] { top: 216.297px; }
+.md\:right-12\.5 { right: calc(var(--spacing) * 12.5); }
+.md\:col-start-1 { grid-column-start: 1; }
+.md\:col-start-3 { grid-column-start: 3; }
+.md\:col-start-4 { grid-column-start: 4; }
+.md\:mt-0 { margin-top: 0px; }
+.md\:mt-6\.25 { margin-top: calc(var(--spacing) * 6.25); }
+.md\:mt-10 { margin-top: calc(var(--spacing) * 10); }
+.md\:ml-auto { margin-left: auto; }
+.md\:block { display: block; }
+.md\:grid { display: grid; }
+.md\:hidden { display: none; }
+.md\:inline-flex { display: inline-flex; }
+.md\:aspect-\[1476\/278\.40625\] { aspect-ratio: 1476 / 278.406; }
+.md\:h-3\.5 { height: calc(var(--spacing) * 3.5); }
+.md\:h-6\.25 { height: calc(var(--spacing) * 6.25); }
+.md\:h-9\.75 { height: calc(var(--spacing) * 9.75); }
+.md\:min-h-screen { min-height: 100vh; }
+.md\:w-1\/4 { width: 25%; }
+.md\:w-31\.25 { width: calc(var(--spacing) * 31.25); }
+.md\:w-65 { width: calc(var(--spacing) * 65); }
+.md\:w-\[13\.6875px\] { width: 13.6875px; }
+.md\:w-\[31\.125px\] { width: 31.125px; }
+.md\:w-\[117\.25px\] { width: 117.25px; }
+.md\:min-w-0 { min-width: 0px; }
+.md\:shrink-0 { flex-shrink: 0; }
+.md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0px, 1fr)); }
+.md\:grid-cols-\[0px_minmax\(0\,1fr\)\] { grid-template-columns: 0px minmax(0px, 1fr); }
+.md\:grid-cols-\[1fr_20px\] { grid-template-columns: 1fr 20px; }
+.md\:grid-cols-\[7\.5rem_minmax\(0\,1fr\)\] { grid-template-columns: 7.5rem minmax(0px, 1fr); }
+.md\:grid-cols-\[7rem_minmax\(0\,1fr\)_8rem_8rem\] { grid-template-columns: 7rem minmax(0px, 1fr) 8rem 8rem; }
+.md\:grid-cols-\[8rem_minmax\(0\,1fr\)\] { grid-template-columns: 8rem minmax(0px, 1fr); }
+.md\:grid-cols-\[8rem_minmax\(0\,1fr\)_6rem\] { grid-template-columns: 8rem minmax(0px, 1fr) 6rem; }
+.md\:grid-cols-\[8rem_minmax\(0\,1fr\)_auto\] { grid-template-columns: 8rem minmax(0px, 1fr) auto; }
+.md\:grid-cols-\[9\.25rem_minmax\(0\,1fr\)\] { grid-template-columns: 9.25rem minmax(0px, 1fr); }
+.md\:grid-cols-\[9rem_minmax\(0\,1fr\)\] { grid-template-columns: 9rem minmax(0px, 1fr); }
+.md\:grid-cols-\[10rem_minmax\(0\,1fr\)\] { grid-template-columns: 10rem minmax(0px, 1fr); }
+.md\:grid-cols-\[12rem_minmax\(0\,1fr\)\] { grid-template-columns: 12rem minmax(0px, 1fr); }
+.md\:grid-cols-\[13rem_minmax\(0\,1fr\)\] { grid-template-columns: 13rem minmax(0px, 1fr); }
+.md\:grid-cols-\[20px_8px_31\.125px_20px_13\.875px\] { grid-template-columns: 20px 8px 31.125px 20px 13.875px; }
+.md\:grid-cols-\[105px_minmax\(0\,281px\)\] { grid-template-columns: 105px minmax(0px, 281px); }
+.md\:grid-cols-\[135px_minmax\(0\,1fr\)\] { grid-template-columns: 135px minmax(0px, 1fr); }
+.md\:grid-cols-\[190px_minmax\(0\,1fr\)\] { grid-template-columns: 190px minmax(0px, 1fr); }
+.md\:grid-cols-\[190px_minmax\(0\,1fr\)_auto\] { grid-template-columns: 190px minmax(0px, 1fr) auto; }
+.md\:grid-cols-\[260px_minmax\(0\,1fr\)\] { grid-template-columns: 260px minmax(0px, 1fr); }
+.md\:grid-cols-\[minmax\(0\,450px\)_minmax\(0\,1fr\)\] { grid-template-columns: minmax(0px, 450px) minmax(0px, 1fr); }
+.md\:grid-cols-\[repeat\(2\,minmax\(0\,240px\)\)\] { grid-template-columns: repeat(2, minmax(0px, 240px)); }
+.md\:flex-nowrap { flex-wrap: nowrap; }
+.md\:items-center { align-items: center; }
+.md\:justify-center { justify-content: center; }
+.md\:justify-end { justify-content: flex-end; }
+.md\:gap-0 { gap: 0px; }
+.md\:gap-2 { gap: calc(var(--spacing) * 2); }
+.md\:gap-x-\[clamp\(20px\,2\.5vw\,37px\)\] { column-gap: clamp(20px, 2.5vw, 37px); }
+.md\:justify-self-end { justify-self: flex-end; }
+.md\:overflow-hidden { overflow: hidden; }
+.md\:overflow-visible { overflow: visible; }
+.md\:rounded-2xl { border-radius: var(--radius-2xl); }
+.md\:rounded-\[3\.6px\] { border-radius: 3.6px; }
+.md\:rounded-\[5px\] { border-radius: 5px; }
+.md\:border { border-style: var(--tw-border-style); border-width: 1px; }
+.md\:border-b-0 { border-bottom-style: var(--tw-border-style); border-bottom-width: 0px; }
+.md\:border-\(--theme-border-migrate-color\) { border-color: var(--theme-border-migrate-color); }
+.md\:bg-transparent { background-color: rgba(0, 0, 0, 0); }
+.md\:px-0 { padding-inline: 0px; }
+.md\:px-4 { padding-inline: calc(var(--spacing) * 4); }
+.md\:py-0 { padding-block: 0px; }
+.md\:py-4 { padding-block: calc(var(--spacing) * 4); }
+.md\:py-10 { padding-block: calc(var(--spacing) * 10); }
+.md\:pt-0 { padding-top: 0px; }
+.md\:pr-0 { padding-right: 0px; }
+.md\:pr-8 { padding-right: calc(var(--spacing) * 8); }
+.md\:pr-65 { padding-right: calc(var(--spacing) * 65); }
+.md\:pb-10 { padding-bottom: calc(var(--spacing) * 10); }
+.md\:pl-6\.25 { padding-left: calc(var(--spacing) * 6.25); }
+.md\:pl-10 { padding-left: calc(var(--spacing) * 10); }
+.md\:text-left { text-align: left; }
+.md\:text-right { text-align: right; }
+.md\:text-\[20px\] { font-size: 20px; }
+.md\:leading-3\.5 { --tw-leading: calc(var(--spacing) * 3.5); line-height: calc(var(--spacing) * 3.5); }
+.md\:leading-6\.25 { --tw-leading: calc(var(--spacing) * 6.25); line-height: calc(var(--spacing) * 6.25); }
+.md\:font-bold { --tw-font-weight: var(--font-weight-bold); font-weight: var(--font-weight-bold); }
+.md\:text-\[\#030303\] { color: rgb(3, 3, 3); }
+.md\:shadow-\[0_1px_2px_rgba\(0\,0\,0\,0\.04\)\] { --tw-shadow: 0 1px 2px var(--tw-shadow-color,#0000000a); }
+.md\:shadow-\[0_1px_2px_rgba\(0\,0\,0\,0\.04\)\], .md\:shadow-\[0_20px_50px_rgba\(20\,22\,25\,0\.06\)\] { box-shadow: var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow); }
+.md\:shadow-\[0_20px_50px_rgba\(20\,22\,25\,0\.06\)\] { --tw-shadow: 0 20px 50px var(--tw-shadow-color,#1416190f); }
+.md\:duration-150 { --tw-duration: .15s; transition-duration: 0.15s; }
+.md\:ease-in { --tw-ease: var(--ease-in); transition-timing-function: var(--ease-in); }
+.md\:before\:hidden::before { content: var(--tw-content); display: none; }
+.md\:after\:content-none::after { --tw-content: none; content: none; }
+}
+@media (min-width: 64rem) {
+.lg\:grid-cols-\[13rem_13rem_minmax\(0\,1fr\)\] { grid-template-columns: 13rem 13rem minmax(0px, 1fr); }
+.lg\:grid-cols-\[13rem_minmax\(0\,1fr\)\] { grid-template-columns: 13rem minmax(0px, 1fr); }
+.lg\:grid-cols-\[minmax\(0\,1fr\)_11rem\] { grid-template-columns: minmax(0px, 1fr) 11rem; }
+.lg\:grid-cols-\[minmax\(0\,1fr\)_30rem\] { grid-template-columns: minmax(0px, 1fr) 30rem; }
+}
+@media (min-width: 80rem) {
+.xl\:grid-cols-\[minmax\(0\,1fr\)_28rem\] { grid-template-columns: minmax(0px, 1fr) 28rem; }
+.xl\:grid-cols-\[minmax\(0\,15rem\)_minmax\(0\,1fr\)_auto_auto\] { grid-template-columns: minmax(0px, 15rem) minmax(0px, 1fr) auto auto; }
+.xl\:grid-cols-\[minmax\(0\,400px\)_minmax\(0\,1fr\)\] { grid-template-columns: minmax(0px, 400px) minmax(0px, 1fr); }
+}
+.\[\&\:\:-webkit-inner-spin-button\]\:appearance-none::-webkit-inner-spin-button, .\[\&\:\:-webkit-outer-spin-button\]\:appearance-none::-webkit-outer-spin-button { appearance: none; }
+.\[\&\:\:-webkit-scrollbar\]\:hidden::-webkit-scrollbar { display: none; }
+.\[\&\:\:-webkit-scrollbar\]\:w-\[0\.2857142857rem\]::-webkit-scrollbar { width: 0.285714rem; }
+.\[\&\:\:-webkit-scrollbar-thumb\]\:rounded-full::-webkit-scrollbar-thumb { border-radius: 3.40282e+38px; }
+.\[\&\:\:-webkit-scrollbar-thumb\]\:bg-black\/20::-webkit-scrollbar-thumb { background-color: rgba(0, 0, 0, 0.2); }
+@supports (color:color-mix(in lab,red,red)) {
+.\[\&\:\:-webkit-scrollbar-thumb\]\:bg-black\/20::-webkit-scrollbar-thumb { background-color: color-mix(in oklab,var(--color-black) 20%,transparent); }
+}
+.\[\&\:\:-webkit-search-cancel-button\]\:appearance-none::-webkit-search-cancel-button, .\[\&\:\:-webkit-search-decoration\]\:appearance-none::-webkit-search-decoration { appearance: none; }
+html[data-theme="dark"] .\[html\[data-theme\=dark\]_\&\]\:bg-\[var\(--primitive-neutral-900\)\] { background-color: var(--primitive-neutral-900); }
+}
+:root { --primitive-neutral-50: #fff; --primitive-neutral-300: #dee5ec; --primitive-neutral-400: #c7ced6; --primitive-neutral-500: #aeb6bf; --primitive-neutral-600: #838a93; --primitive-neutral-700: #595f68; --primitive-neutral-800: #464c54; --primitive-neutral-900: #343a40; --primitive-neutral-950: #212529; --primitive-blue-400: #6ea3ff; --primitive-blue-500: #519cff; --color-white: #fff; --color-black: #000}
+:root[data-theme="light"][data-theme-version="1"] { --theme-light: #fff; --theme-light-hover: white; --theme-dark: #030303; --theme-gray: #606060; --theme-gray50: #f8fafb; --theme-gray400: #bcc4cc; --theme-gray500: #868e96; --theme-gray600: #656d75; --theme-gray900: #212529; --theme-blue50: #ebf3ff; --theme-blue400: #519cff; --theme-border-migrate-color: #0000001a; --theme-text-dark: #030303; --theme-surface-primary: var(--primitive-neutral-50); --theme-border-focus: var(--primitive-blue-500); --theme-border-pressed: var(--primitive-neutral-600); --theme-switch-surface-off: var(--primitive-neutral-300); --theme-switch-surface-off-hover: var(--primitive-neutral-400); --theme-switch-thumb: var(--primitive-neutral-50); --theme-switch-thumb-shadow-off: 0 4px 12px 0 #2125291a; --theme-field-border-focus: var(--primitive-blue-500); --theme-field-surface-error: #f849491a}
+:root[data-theme="dark"][data-theme-version="1"] {--theme-light: #202124; --theme-light-hover: #2c2d32; --theme-dark: #e8eaed; --theme-gray: #707070; --theme-gray50: #31373d; --theme-gray400: #656d75; --theme-gray500: #747b81; --theme-gray600: #bcc4cc; --theme-gray900: #f1f3f5; --theme-blue50: #203b65; --theme-blue400: #519cff; --theme-border-migrate-color: #ffffff1a; --theme-text-dark: #e8eaed; --theme-surface-primary: var(--primitive-neutral-950); --theme-border-focus: var(--primitive-blue-400); --theme-border-pressed: var(--primitive-neutral-500); --theme-switch-surface-off: var(--primitive-neutral-800); --theme-switch-surface-off-hover: var(--primitive-neutral-700); --theme-switch-thumb: var(--primitive-neutral-950); --theme-switch-thumb-shadow-off: 0 4px 12px 0 #2125291a; --theme-field-border-focus: var(--primitive-blue-400); --theme-field-surface-error: #f849491a}
+@font-face { font-family: Pretendard; font-style: normal; font-display: swap; font-weight: 600; src: url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/packages/pretendard/dist/web/static/woff2/Pretendard-SemiBold.woff2") format("woff2"); }
+@font-face { font-family: "Pretendard JP"; font-style: normal; font-display: swap; font-weight: 400; src: url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/packages/pretendard-jp/dist/web/static/woff2/PretendardJP-Regular.woff2") format("woff2"); }
+@font-face { font-family: "Pretendard JP"; font-style: normal; font-display: swap; font-weight: 500; src: url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/packages/pretendard-jp/dist/web/static/woff2/PretendardJP-Medium.woff2") format("woff2"); }
+@font-face { font-family: "Pretendard JP"; font-style: normal; font-display: swap; font-weight: 600; src: url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/packages/pretendard-jp/dist/web/static/woff2/PretendardJP-SemiBold.woff2") format("woff2"); }
+@font-face { font-family: "Pretendard JP"; font-style: normal; font-display: swap; font-weight: 700; src: url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/packages/pretendard-jp/dist/web/static/woff2/PretendardJP-Bold.woff2") format("woff2"); }
+a.donator-footer-policy-highlight { color: rgb(0, 0, 0); }
+.donate-watch-mode-form-content :is(input, select, textarea):focus { border-color: var(--theme-field-border-focus); }
+.donate-watch-mode-form-content :is(#text-donate-submit, #game-donate-submit, #signature-donate-submit-button, #mini-donate-submit, #voice-donate-submit, #video-donate-submit, #roulette-donate-submit-button) { max-width: none; }
+@keyframes gift-hot-products-marquee {
+0% { transform: translate(0px); }
+100% { transform: translate(-50%); }
+}
+@container donate-panel (max-width: 30rem) {
+.gacha-donate-preset-card > button :is(p, span) { width: auto; }
+}
+@property --tw-translate-x { syntax: "*"; inherits: false; initial-value: 0; }
+@property --tw-translate-y { syntax: "*"; inherits: false; initial-value: 0; }
+@property --tw-translate-z { syntax: "*"; inherits: false; initial-value: 0; }
+@property --tw-scale-x { syntax: "*"; inherits: false; initial-value: 1; }
+@property --tw-scale-y { syntax: "*"; inherits: false; initial-value: 1; }
+@property --tw-scale-z { syntax: "*"; inherits: false; initial-value: 1; }
+@property --tw-rotate-x { syntax: "*"; inherits: false; }
+@property --tw-rotate-y { syntax: "*"; inherits: false; }
+@property --tw-rotate-z { syntax: "*"; inherits: false; }
+@property --tw-skew-x { syntax: "*"; inherits: false; }
+@property --tw-skew-y { syntax: "*"; inherits: false; }
+@property --tw-space-y-reverse { syntax: "*"; inherits: false; initial-value: 0; }
+@property --tw-divide-y-reverse { syntax: "*"; inherits: false; initial-value: 0; }
+@property --tw-border-style { syntax: "*"; inherits: false; initial-value: solid; }
+@property --tw-leading { syntax: "*"; inherits: false; }
+@property --tw-font-weight { syntax: "*"; inherits: false; }
+@property --tw-tracking { syntax: "*"; inherits: false; }
+@property --tw-ordinal { syntax: "*"; inherits: false; }
+@property --tw-slashed-zero { syntax: "*"; inherits: false; }
+@property --tw-numeric-figure { syntax: "*"; inherits: false; }
+@property --tw-numeric-spacing { syntax: "*"; inherits: false; }
+@property --tw-numeric-fraction { syntax: "*"; inherits: false; }
+@property --tw-shadow { syntax: "*"; inherits: false; initial-value: 0 0 #0000; }
+@property --tw-shadow-color { syntax: "*"; inherits: false; }
+@property --tw-shadow-alpha { syntax: "<percentage>"; inherits: false; initial-value: 100%; }
+@property --tw-inset-shadow { syntax: "*"; inherits: false; initial-value: 0 0 #0000; }
+@property --tw-inset-shadow-color { syntax: "*"; inherits: false; }
+@property --tw-inset-shadow-alpha { syntax: "<percentage>"; inherits: false; initial-value: 100%; }
+@property --tw-ring-color { syntax: "*"; inherits: false; }
+@property --tw-ring-shadow { syntax: "*"; inherits: false; initial-value: 0 0 #0000; }
+@property --tw-inset-ring-color { syntax: "*"; inherits: false; }
+@property --tw-inset-ring-shadow { syntax: "*"; inherits: false; initial-value: 0 0 #0000; }
+@property --tw-ring-inset { syntax: "*"; inherits: false; }
+@property --tw-ring-offset-width { syntax: "<length>"; inherits: false; initial-value: 0; }
+@property --tw-ring-offset-color { syntax: "*"; inherits: false; initial-value: #fff; }
+@property --tw-ring-offset-shadow { syntax: "*"; inherits: false; initial-value: 0 0 #0000; }
+@property --tw-outline-style { syntax: "*"; inherits: false; initial-value: solid; }
+@property --tw-blur { syntax: "*"; inherits: false; }
+@property --tw-brightness { syntax: "*"; inherits: false; }
+@property --tw-contrast { syntax: "*"; inherits: false; }
+@property --tw-grayscale { syntax: "*"; inherits: false; }
+@property --tw-hue-rotate { syntax: "*"; inherits: false; }
+@property --tw-invert { syntax: "*"; inherits: false; }
+@property --tw-opacity { syntax: "*"; inherits: false; }
+@property --tw-saturate { syntax: "*"; inherits: false; }
+@property --tw-sepia { syntax: "*"; inherits: false; }
+@property --tw-drop-shadow { syntax: "*"; inherits: false; }
+@property --tw-drop-shadow-color { syntax: "*"; inherits: false; }
+@property --tw-drop-shadow-alpha { syntax: "<percentage>"; inherits: false; initial-value: 100%; }
+@property --tw-drop-shadow-size { syntax: "*"; inherits: false; }
+@property --tw-backdrop-blur { syntax: "*"; inherits: false; }
+@property --tw-backdrop-brightness { syntax: "*"; inherits: false; }
+@property --tw-backdrop-contrast { syntax: "*"; inherits: false; }
+@property --tw-backdrop-grayscale { syntax: "*"; inherits: false; }
+@property --tw-backdrop-hue-rotate { syntax: "*"; inherits: false; }
+@property --tw-backdrop-invert { syntax: "*"; inherits: false; }
+@property --tw-backdrop-opacity { syntax: "*"; inherits: false; }
+@property --tw-backdrop-saturate { syntax: "*"; inherits: false; }
+@property --tw-backdrop-sepia { syntax: "*"; inherits: false; }
+@property --tw-duration { syntax: "*"; inherits: false; }
+@property --tw-ease { syntax: "*"; inherits: false; }
+@property --tw-content { syntax: "*"; inherits: false; initial-value: ""; }
+@keyframes spin {
+100% { transform: rotate(1turn); }
+}
+@keyframes pulse {
+50% { opacity: 0.5; }
+}
+body, html { margin: 0px; padding: 0px; }
+a { color: inherit; text-decoration: none; }
+.donator-home-line-clamp-1 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.donator-home-card-thumb { border-radius: 12px; }
+@keyframes claude-pulse {
+0%, 100% { opacity: 0.6; }
+50% { opacity: 1; }
+}
+#claude-agent-glow-border-inner { animation: 2s ease-in-out 0s infinite normal none running claude-pulse; }
+@media (prefers-reduced-motion: reduce) {
+#claude-agent-glow-border-inner { animation: auto ease 0s 1 normal none running none; }
+}
+
+
+.toonaland-section{background:var(--theme-light,#fff);border-radius:16px;padding:20px 0 0;margin-top:25px;}
+.toonaland-section[hidden],#donator-home-page[hidden]{display:none;}
+.toonaland-title{font-size:20px;font-weight:700;margin:0 0 16px;color:var(--theme-text-dark,#141619);}
+#toonaland-frame{display:block;width:100%;height:calc(100vh - 140px);min-height:640px;border:0;border-radius:16px;background:#f4f6f8;}
+</style>
+</head>
+<body class="__variable_ccdd42">
+<div hidden=""></div><div class="bg-(--theme-light) text-[13px] text-(--theme-gray900)"><div class="relative mx-auto max-w-450"><header class="sticky top-0 z-30 flex h-[3.5714285714rem] items-center justify-between border-b border-[#dfe3e8] bg-white px-4 md:hidden"><a id="donator-mobile-home-link" href="#" class="inline-flex min-w-12 items-center" aria-label="투네이션 홈"><svg xmlns="http://www.w3.org/2000/svg" width="42" height="16" viewBox="0 0 42 16" fill="none"><path d="M10 5.667H6.333V2H4V5.667H0.333V8H4v3.667h2.333V8H10V5.667Z" fill="#519cff"></path><circle cx="18.333" cy="8" r="5.667" fill="#519cff" fill-opacity="0.45"></circle><circle cx="29.667" cy="8" r="5.667" fill="#519cff"></circle></svg></a><div id="donator-mobile-page-title-output" class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[1.25rem] leading-none font-bold text-[#141619]">홈</div><button id="donator-mobile-menu-open-button" type="button" aria-label="메뉴 열기" class="inline-flex size-8 items-center justify-center"><img alt="" aria-hidden="true" class="size-5" src="https://stg.tooth.one/donator/image/common/menu-open.svg"></button></header><div class="relative min-h-[calc(100vh-3.5714285714rem)] md:min-h-screen md:grid md:grid-cols-[260px_minmax(0,1fr)]"><aside class="hidden md:block md:py-4 md:transition-[width,padding] md:duration-150 md:ease-in md:w-65 md:pl-6.25 md:pr-0 md:overflow-visible"><div class="transition-opacity duration-150 ease-in opacity-100"><div class="grid grid-rows-[auto_auto_1fr] bg-(--theme-light) text-[14px] leading-normal text-(--theme-text-dark) sticky top-4 h-[calc(100vh-32px)] w-57"><div class="relative my-5 h-6 text-center"><a id="donator-home-side-link" aria-label="도네이터 홈으로 이동" class="inline-block rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--theme-blue400)" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="133" height="20" viewBox="0 0 133 20"><defs><clipPath id="award-history-logo-clip-desktop"><path d="M0 0h16.334v17.551H0z" fill="#519cff"></path></clipPath></defs><g fill="none" fill-rule="evenodd"><path fill="#519cff" d="M12.433 7.188V3.212a2.819 2.819 0 0 0-5.638 0v3.976H2.819a2.819 2.819 0 0 0 0 5.638h3.976v3.976a2.819 2.819 0 1 0 5.638 0v-3.976h4.549a9.649 9.649 0 0 1 0-5.638z"></path><path fill="#519cff" d="M44.008 1.244a8.776 8.776 0 1 0 8.307 8.307 8.776 8.776 0 0 0-8.307-8.307m-.057 12.65a3.907 3.907 0 1 1 3.486-3.486 3.911 3.911 0 0 1-3.486 3.486"></path><g opacity="0.5" transform="translate(18.036 1.231)"><g clip-path="url(#award-history-logo-clip-desktop)"><path fill="#519cff" d="M8.779 0a8.776 8.776 0 1 0 7.558 13.234 8.772 8.772 0 0 1 0-8.916A8.77 8.77 0 0 0 8.779 0m.4 12.662a3.907 3.907 0 1 1 3.486-3.486 3.911 3.911 0 0 1-3.486 3.486"></path></g></g><text transform="translate(57 15.999)" fill="#141619" font-family="Quicksand-Bold, Quicksand" font-size="16" font-weight="700"><tspan x="0" y="0">toonation</tspan></text></g></svg></a><button type="button" aria-label="사이드 메뉴 닫기" class="absolute left-1.25 top-0 cursor-pointer"><img alt="메뉴 열기" height="24" width="24" src="https://stg.tooth.one/donator/image/common/menu-open.svg"></button></div><div class="overflow-hidden"><div class="grid grid-cols-[44px_1fr] items-center gap-2"><div class="flex h-11 items-center justify-center"><span class="inline-flex items-center justify-center overflow-hidden bg-[linear-gradient(135deg,#fde68a_0%,#facc15_100%)] text-(--theme-gray900) size-11 rounded-full border border-black/10 object-cover" aria-label="투네이션 샘플 후원자 프로필" role="img"><svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="3"></circle><path d="M5.8 19c.65-3.35 2.75-5 6.2-5s5.55 1.65 6.2 5"></path></svg></span></div><div class="flex h-full flex-col justify-center gap-0.5 overflow-hidden py-0.75 text-[14px] leading-[normal]"><div id="donator-side-title-output" class="truncate text-(--theme-gray)">후원 50만 캐시 달성</div><div id="donator-side-display-name-output" class="truncate font-bold text-(--theme-text-dark)">투네이션 샘플 후원자</div></div></div><div class="mt-3 rounded-[4.2px] bg-[#f7f7f8] px-3 py-2"><div class="mt-2 grid grid-cols-[1fr_auto] items-center gap-2 border-b border-black/10 pb-2 leading-[normal]"><p class="text-[12px] font-semibold text-(--theme-gray)">소셜 ID</p><div class="flex items-center gap-1.5 text-end"><span class="flex size-3.5 items-center justify-center rounded-full border border-black/10 bg-white"><img alt="" aria-hidden="true" class="size-2.5" src="https://stg.tooth.one/donator/image/common/youtube.svg"></span><p id="donator-side-social-account-output" class="max-w-35 truncate text-[12px] text-(--theme-gray)">sample@email.com</p></div></div><div class="my-2 flex items-center justify-between"><p class="text-[12px] font-semibold text-(--theme-gray)">투네이션 ID</p><div class="flex items-center"><button id="donator-side-toonation-id-manage-button" type="button" class="flex items-center gap-1 bg-transparent p-0 text-(--theme-text-dark)"><span id="donator-side-toonation-id-output" class="max-w-29 overflow-hidden text-end text-[12px] leading-4.5 text-ellipsis whitespace-nowrap font-normal">toonation</span><img alt="설정" class="size-4" src="https://stg.tooth.one/donator/image/common/setting.svg"></button></div></div><div class="flex gap-1"><button id="donator-side-logout-button" type="button" class="mt-1 w-full rounded-md border border-(--theme-border-migrate-color) bg-(--theme-light) px-3 py-[6.5px] text-[12px] leading-[normal] font-normal">로그아웃</button><button id="donator-side-linked-social-accounts-button" type="button" class="mt-1 w-full rounded-md border border-(--theme-border-migrate-color) bg-(--theme-blue50) px-3 py-[6.5px] text-[12px] leading-[normal] font-bold text-[#2196f3]">연결 계정 확인</button></div></div><div class="mt-1.5"><div class="flex items-center justify-between py-2.5 text-[14px] leading-[normal]"><p class="text-(--theme-gray)">캐시</p><p id="donator-side-cash-output" class="font-bold text-(--theme-text-dark)">0</p></div><div class="flex items-center justify-between py-2.5 text-[14px] leading-[normal]"><p class="text-(--theme-gray)">강냉이</p><p id="donator-side-point-output" class="font-bold text-(--theme-text-dark)">0</p></div></div><div class="mt-5 grid gap-2"><button id="donator-side-cash-charge-button" type="button" class="h-10 rounded-lg bg-(--theme-blue400) text-[16px] leading-5 font-semibold text-white">캐시 충전</button><button id="donator-side-mobile-charge-button" type="button" class="h-10 rounded-lg border border-black/10 bg-(--theme-gray50) text-[14px] leading-4.5 font-semibold text-(--theme-gray600)">모바일에서 충전 (QR코드)</button></div></div><div class="mt-5 -mr-4 overflow-hidden"><div class="h-full overflow-y-auto pr-4 [&amp;::-webkit-scrollbar]:w-[0.2857142857rem] [&amp;::-webkit-scrollbar-thumb]:rounded-full [&amp;::-webkit-scrollbar-thumb]:bg-black/20"><nav id="donator-side-menu-output" class="text-[14px] leading-normal text-(--theme-text-dark)"><button id="donator-side-menu-home-creator-button" type="button" class="flex w-full cursor-pointer items-center bg-(--theme-light) py-2.5 text-left text-[14px] leading-[21px] font-bold text-(--theme-text-dark) transition-colors hover:bg-(--theme-light-hover)" style="padding: 0.625rem; font-size: 0.875rem; font-weight: 700;">크리에이터 홈</button><button id="donator-side-menu-home-button" type="button" class="flex w-full cursor-pointer items-center bg-(--theme-light) py-2.5 text-left text-[14px] leading-[21px] font-bold text-(--theme-text-dark) transition-colors hover:bg-(--theme-light-hover)" style="padding: 0.625rem; font-size: 0.875rem; font-weight: 700;">도네이터 홈</button><button id="donator-side-menu-favorites-button" type="button" class="flex w-full cursor-pointer items-center bg-(--theme-light) py-2.5 text-left text-[14px] leading-[21px] font-bold text-(--theme-text-dark) transition-colors hover:bg-(--theme-light-hover)" style="padding: 0.625rem; font-size: 0.875rem; font-weight: 700;">즐겨찾기</button><button id="donator-side-menu-inventory-button" type="button" class="flex w-full cursor-pointer items-center bg-(--theme-light) py-2.5 text-left text-[14px] leading-[21px] font-bold text-(--theme-text-dark) transition-colors hover:bg-(--theme-light-hover)" style="padding: 0.625rem; font-size: 0.875rem; font-weight: 700;">인벤토리</button><div><button id="donator-side-menu-my-profile-button" type="button" class="flex w-full cursor-pointer items-center bg-(--theme-light) px-2.5 py-2.5 text-left text-[14px] leading-[21px] font-bold text-(--theme-text-dark) transition-colors hover:bg-(--theme-light-hover)" style="padding-left: 0.625rem;"><span>내정보</span><svg class="ml-auto shrink-0 text-(--theme-gray) transition-transform " fill="currentColor" height="16" viewBox="0 0 48 48" width="16"><path d="M33.18 17.18 24 26.34l-9.18-9.16L12 20l12 12 12-12z"></path></svg></button></div><div><button id="donator-side-menu-ranking-button" type="button" class="flex w-full cursor-pointer items-center bg-(--theme-light) px-2.5 py-2.5 text-left text-[14px] leading-[21px] font-bold text-(--theme-text-dark) transition-colors hover:bg-(--theme-light-hover)" style="padding-left: 0.625rem;"><span>투네 랭킹</span><svg class="ml-auto shrink-0 text-(--theme-gray) transition-transform " fill="currentColor" height="16" viewBox="0 0 48 48" width="16"><path d="M33.18 17.18 24 26.34l-9.18-9.16L12 20l12 12 12-12z"></path></svg></button></div><button id="donator-side-menu-toonaland-button" type="button" class="flex w-full cursor-pointer items-center bg-(--theme-light) py-2.5 text-left text-[14px] leading-[21px] font-bold text-(--theme-text-dark) transition-colors hover:bg-(--theme-light-hover)" style="padding: 0.625rem; font-size: 0.875rem; font-weight: 700;">투네 랜드</button></nav><div class="flex h-10 items-center justify-between px-2.5"><p class="text-[14px] leading-[21px] font-bold text-(--theme-text-dark)">어두운 테마</p><div role="switch" aria-checked="false" aria-disabled="false" data-state="off" tabindex="0" class="relative inline-flex shrink-0 rounded-full transition-[background-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--theme-surface-primary)] h-5 w-[38px] cursor-pointer bg-[var(--theme-switch-surface-off)] hover:bg-[var(--theme-switch-surface-off-hover)] active:bg-[var(--theme-border-pressed)] shadow-sm" aria-label="어두운 테마"><div class="absolute left-[2px] top-1/2 rounded-full bg-[var(--theme-switch-thumb)] -translate-y-1/2 transition-[transform,box-shadow,background-color] duration-200 ease-in-out h-4 w-4 translate-x-0 shadow-[var(--theme-switch-thumb-shadow-off)]"></div></div></div><div class="relative mt-5.5"><img alt="사이드 배너" class="aspect-244/280 w-full object-cover" src="https://toothcdn.xyz:8432/uploaded/__banner_img__/4dA6zgAXS4ga3MjITSjdlzHQdPlZ0Hq_lV-r6xQ1oeNxA6hS_TsAffsqzBL7ndjovzk8nz_sVkDWDuQ6PGtowA.img"><div class="absolute bottom-1.25 left-0 flex w-full justify-center gap-1.25"><span class="size-2.5 rounded-full bg-white/50"></span><span class="size-2.5 rounded-full bg-white/90"></span></div></div></div></div></div></div></aside><div class="grid min-h-[calc(100vh-3.5714285714rem)] grid-rows-[1fr_auto] bg-(--theme-light) md:min-h-screen md:bg-transparent md:py-10 md:pr-8 md:pl-10"><main id="donator-content"><section class="border-0 bg-(--theme-light) md:rounded-2xl"><div><form id="donator-frame-creator-search-form" class="mb-5 hidden md:ml-auto md:block md:h-9.75 md:w-1/4 md:min-w-0 md:rounded-[5px] md:border md:border-(--theme-border-migrate-color)"><label class="flex h-9.25 w-full items-center rounded-[4.2px] border-0 bg-[#f7f7f8] px-4"><button id="donator-frame-creator-search-submit-button" type="submit" aria-label="크리에이터 검색 실행" class="mr-1 inline-flex shrink-0 cursor-pointer text-(--theme-gray)"><svg fill="currentColor" height="20" viewBox="0 0 20 20" width="20"><path d="M15.5 14h-.79l-.28-.27a6.51 6.51 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19zm-6 0A4.5 4.5 0 1 1 14 9.5 4.494 4.494 0 0 1 9.5 14z" transform="translate(-3 -3)"></path></svg></button><input id="donator-frame-creator-search-keyword-input" class="w-full bg-transparent text-[14px] leading-5 text-(--theme-text-dark) outline-none placeholder:text-(--theme-text-dark) placeholder:opacity-30" placeholder="크리에이터 검색" type="search" value=""></label></form><div class="relative overflow-hidden md:rounded-2xl"><img alt="홈 메인 배너" class="aspect-720/160 w-full object-cover md:hidden" src="https://stg.tooth.one/donator/image/common/banner-main-mobile.png"><img alt="홈 메인 배너" class="hidden w-full object-cover md:block md:aspect-[1476/278.40625]" src="https://toothcdn.xyz:8432/uploaded/__banner_img__/_zsx-4jbilWIE5mLA3YiPyJurG1vmk09StwdRiwzqSwJXZL83J7usjhfo6STY4wsrmp0X0inwbLNu6nqp2Lwtw.img"><div class="absolute bottom-1.25 left-1/2 flex -translate-x-1/2 gap-1.25"><span class="size-2.5 rounded-full bg-white/45"></span><span class="size-2.5 rounded-full bg-white/90"></span></div></div><div id="donator-home-page" class="mt-0 bg-(--theme-light) md:mt-6.25"><div class="border-b border-black/10 px-5 md:border-b-0 md:px-0"><div class="flex items-center gap-4 md:gap-2"><button id="donator-home-main-tab-live-button" type="button" class="inline-flex cursor-pointer items-center gap-1.5 py-4 text-[20px] font-bold text-(--theme-text-dark) transition-opacity md:py-0 md:text-[20px] md:font-bold border-b-2 border-(--theme-text-dark) opacity-100 md:border-b-0">라이브 방송<span class="hidden items-center rounded bg-[#fd392a] px-1.5 py-0.5 text-[13px] leading-none font-bold text-white md:inline-flex">LIVE</span></button><span class="text-[18px] font-bold text-(--theme-gray400) md:text-[20px]">/</span><button id="donator-home-main-tab-my-donation-button" type="button" class="cursor-pointer py-4 text-[20px] font-bold text-(--theme-text-dark) transition-opacity md:py-0 md:text-[20px] md:font-bold opacity-50">MY 후원</button></div></div><div id="donator-home-live-panel" class="px-5 pt-5 md:px-0"><nav class="flex items-center gap-5 border-b border-black/10 py-0"><button id="donator-home-live-tab-popular-button" type="button" class="cursor-pointer py-4 text-[17px] leading-normal font-semibold border-b-2 border-(--theme-text-dark) text-(--theme-text-dark)">인기라이브</button><button id="donator-home-live-tab-all-button" type="button" class="cursor-pointer py-4 text-[17px] leading-normal font-semibold text-(--theme-gray500)">전체라이브</button></nav><div id="donator-home-popular-panel" class="mt-6.25 grid gap-4 pb-5 md:pb-10"><div id="donator-home-popular-category-sections-output" class="grid gap-y-4 overflow-hidden"><section id="donator-home-popular-talk-section" class="w-full"><a id="donator-home-popular-talk-title-link" class="inline-flex items-center gap-1 text-(--theme-text-dark)" href="#"><h3 id="donator-home-popular-talk-title-output" class="text-[18px] leading-normal font-semibold text-(--theme-text-dark)">추천 토크 채널</h3><svg fill="currentColor" height="12" viewBox="0 0 320 512" width="12"><path d="M285.476 272.971 91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"></path></svg></a><div id="donator-home-popular-talk-list-output" class="mt-4 grid min-h-55 grid-cols-2 gap-x-2 gap-y-6 sm:gap-x-4 sm:gap-y-8 sm:grid-cols-4"><article id="donator-home-popular-talk-card-1-output" class="flex h-full flex-col gap-2.5"><a id="donator-home-popular-talk-card-1-link" class="donator-home-card-thumb relative flex aspect-video w-full overflow-hidden bg-black/10" href="#" rel="noreferrer noopener" target="_blank"><img alt="부천 근성테스트 세상에서 제일 매운 신길동짬뽕" class="size-full flex-1 object-cover" src="https://img.youtube.com/vi/sWB-vnEnevA/hqdefault.jpg"><div class="absolute left-2 top-2 z-10 flex items-center gap-1"><img alt="유튜브 라이브" class="h-5 w-auto" src="https://stg.tooth.one/donator/image/home/live-youtube.png"><span id="donator-home-popular-talk-card-1-viewer-count-output" class="rounded-sm bg-black/80 px-1.5 py-0.5 text-[13px] leading-[19.5px] font-medium text-white">시청자 3,103명</span></div></a><div class="flex items-start gap-3"><span class="inline-flex size-10 items-center justify-center overflow-hidden rounded-full bg-[#e8edf2] text-(--theme-gray900)"><span class="text-[15px] font-semibold text-(--theme-gray900)">B</span></span><div class="min-w-0 flex-1 overflow-hidden"><div id="donator-home-popular-talk-card-1-title-output" class="donator-home-line-clamp-1 mb-1 break-all text-sm leading-normal font-bold text-(--theme-text-dark)">부천 근성테스트 세상에서 제일 매운 신길동짬뽕</div><div id="donator-home-popular-talk-card-1-creator-name-output" class="donator-home-line-clamp-1 text-sm leading-4 font-light text-(--theme-gray)">BJ 김여포</div></div></div></article></div><div class="mt-4 flex w-full items-center gap-4"><span class="h-px flex-1 bg-black/10"></span><a id="donator-home-popular-talk-more-button" class="inline-flex items-center gap-0.5 rounded-full border border-black/10 px-3 py-1.5 text-[13px] leading-[19.5px] font-normal text-(--theme-gray900)" href="#">더보기<svg fill="none" height="12" viewBox="0 0 512 512" width="12"><path d="M112 184l144 144 144-144" stroke="currentColor" stroke-linecap="square" stroke-miterlimit="10" stroke-width="48"></path></svg></a><span class="h-px flex-1 bg-black/10"></span></div></section><section id="donator-home-popular-virtual-section" class="w-full"><a id="donator-home-popular-virtual-title-link" class="inline-flex items-center gap-1 text-(--theme-text-dark)" href="#"><h3 id="donator-home-popular-virtual-title-output" class="text-[18px] leading-normal font-semibold text-(--theme-text-dark)">추천 버츄얼 채널</h3><svg fill="currentColor" height="12" viewBox="0 0 320 512" width="12"><path d="M285.476 272.971 91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"></path></svg></a><div id="donator-home-popular-virtual-list-output" class="mt-4 grid min-h-55 grid-cols-2 gap-x-2 gap-y-6 sm:gap-x-4 sm:gap-y-8 sm:grid-cols-4"><article id="donator-home-popular-virtual-card-1-output" class="flex h-full flex-col gap-2.5"><a id="donator-home-popular-virtual-card-1-link" class="donator-home-card-thumb relative flex aspect-video w-full overflow-hidden bg-black/10" href="#" rel="noreferrer noopener" target="_blank"><img alt="비트코인 사또 [결국 떨어지는거 누가모름?]7월 개인대회 더보기란 링크트리확인! BitCoin Korea No.1" class="size-full flex-1 object-cover" src="https://img.youtube.com/vi/yZELnEuFfk8/hqdefault.jpg"><div class="absolute left-2 top-2 z-10 flex items-center gap-1"><img alt="유튜브 라이브" class="h-5 w-auto" src="https://stg.tooth.one/donator/image/home/live-youtube.png"><span id="donator-home-popular-virtual-card-1-viewer-count-output" class="rounded-sm bg-black/80 px-1.5 py-0.5 text-[13px] leading-[19.5px] font-medium text-white">시청자 459명</span></div></a><div class="flex items-start gap-3"><span class="inline-flex size-10 items-center justify-center overflow-hidden rounded-full bg-[#e8edf2] text-(--theme-gray900)"><span class="text-[15px] font-semibold text-(--theme-gray900)">스</span></span><div class="min-w-0 flex-1 overflow-hidden"><div id="donator-home-popular-virtual-card-1-title-output" class="donator-home-line-clamp-1 mb-1 break-all text-sm leading-normal font-bold text-(--theme-text-dark)">비트코인 사또 [결국 떨어지는거 누가모름?]7월 개인대회 더보기란 링크트리확인! BitCoin Korea No.1</div><div id="donator-home-popular-virtual-card-1-creator-name-output" class="donator-home-line-clamp-1 text-sm leading-4 font-light text-(--theme-gray)">스트리머 사또</div></div></div></article></div><div class="mt-4 flex w-full items-center gap-4"><span class="h-px flex-1 bg-black/10"></span><a id="donator-home-popular-virtual-more-button" class="inline-flex items-center gap-0.5 rounded-full border border-black/10 px-3 py-1.5 text-[13px] leading-[19.5px] font-normal text-(--theme-gray900)" href="#">더보기<svg fill="none" height="12" viewBox="0 0 512 512" width="12"><path d="M112 184l144 144 144-144" stroke="currentColor" stroke-linecap="square" stroke-miterlimit="10" stroke-width="48"></path></svg></a><span class="h-px flex-1 bg-black/10"></span></div></section><section id="donator-home-popular-game-section" class="w-full"><a id="donator-home-popular-game-title-link" class="inline-flex items-center gap-1 text-(--theme-text-dark)" href="#"><h3 id="donator-home-popular-game-title-output" class="text-[18px] leading-normal font-semibold text-(--theme-text-dark)">추천 게임 채널</h3><svg fill="currentColor" height="12" viewBox="0 0 320 512" width="12"><path d="M285.476 272.971 91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"></path></svg></a><div id="donator-home-popular-game-list-output" class="mt-4 grid min-h-55 grid-cols-2 gap-x-2 gap-y-6 sm:gap-x-4 sm:gap-y-8 sm:grid-cols-4"><article id="donator-home-popular-game-card-1-output" class="flex h-full flex-col gap-2.5"><a id="donator-home-popular-game-card-1-link" class="donator-home-card-thumb relative flex aspect-video w-full overflow-hidden bg-black/10" href="#" rel="noreferrer noopener" target="_blank"><img alt="원큐 뱀피르 월요일 마지막 영묘신화 뽑아보자    &quot;7월22일 일본신섭 오픈&quot;    #원큐 #oneq #뱀피르 #VAMPIR  2026  07/20" class="size-full flex-1 object-cover" src="https://img.youtube.com/vi/fSB2K4e-QyY/hqdefault.jpg"><div class="absolute left-2 top-2 z-10 flex items-center gap-1"><img alt="유튜브 라이브" class="h-5 w-auto" src="https://stg.tooth.one/donator/image/home/live-youtube.png"><span id="donator-home-popular-game-card-1-viewer-count-output" class="rounded-sm bg-black/80 px-1.5 py-0.5 text-[13px] leading-[19.5px] font-medium text-white">시청자 836명</span></div></a><div class="flex items-start gap-3"><span class="inline-flex size-10 items-center justify-center overflow-hidden rounded-full bg-[#e8edf2] text-(--theme-gray900)"><span class="text-[15px] font-semibold text-(--theme-gray900)">원</span></span><div class="min-w-0 flex-1 overflow-hidden"><div id="donator-home-popular-game-card-1-title-output" class="donator-home-line-clamp-1 mb-1 break-all text-sm leading-normal font-bold text-(--theme-text-dark)">원큐 뱀피르 월요일 마지막 영묘신화 뽑아보자    "7월22일 일본신섭 오픈"    #원큐 #oneq #뱀피르 #VAMPIR  2026  07/20</div><div id="donator-home-popular-game-card-1-creator-name-output" class="donator-home-line-clamp-1 text-sm leading-4 font-light text-(--theme-gray)">원큐</div></div></div></article></div><div class="mt-4 flex w-full items-center gap-4"><span class="h-px flex-1 bg-black/10"></span><a id="donator-home-popular-game-more-button" class="inline-flex items-center gap-0.5 rounded-full border border-black/10 px-3 py-1.5 text-[13px] leading-[19.5px] font-normal text-(--theme-gray900)" href="#">더보기<svg fill="none" height="12" viewBox="0 0 512 512" width="12"><path d="M112 184l144 144 144-144" stroke="currentColor" stroke-linecap="square" stroke-miterlimit="10" stroke-width="48"></path></svg></a><span class="h-px flex-1 bg-black/10"></span></div></section><section id="donator-home-popular-live-top-50-section" class="w-full"><a id="donator-home-popular-live-top-50-title-link" class="inline-flex items-center gap-1 text-(--theme-text-dark)" href="#"><h3 id="donator-home-popular-live-top-50-title-output" class="text-[18px] leading-normal font-semibold text-(--theme-text-dark)">LIVE TOP 50</h3><svg fill="currentColor" height="12" viewBox="0 0 320 512" width="12"><path d="M285.476 272.971 91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"></path></svg></a><div id="donator-home-popular-live-top-50-list-output" class="mt-4 grid min-h-55 grid-cols-2 gap-x-2 gap-y-6 sm:gap-x-4 sm:gap-y-8 sm:grid-cols-4"><article id="donator-home-popular-live-top-50-card-1-output" class="flex h-full flex-col gap-2.5"><a id="donator-home-popular-live-top-50-card-1-link" class="donator-home-card-thumb relative flex aspect-video w-full overflow-hidden bg-black/10" href="#" rel="noreferrer noopener" target="_blank"><img alt="부천 근성테스트 세상에서 제일 매운 신길동짬뽕" class="size-full flex-1 object-cover" src="https://img.youtube.com/vi/sWB-vnEnevA/hqdefault.jpg"><div class="absolute left-2 top-2 z-10 flex items-center gap-1"><img alt="유튜브 라이브" class="h-5 w-auto" src="https://stg.tooth.one/donator/image/home/live-youtube.png"><span id="donator-home-popular-live-top-50-card-1-viewer-count-output" class="rounded-sm bg-black/80 px-1.5 py-0.5 text-[13px] leading-[19.5px] font-medium text-white">시청자 3,103명</span></div></a><div class="flex items-start gap-3"><span class="inline-flex size-10 items-center justify-center overflow-hidden rounded-full bg-[#e8edf2] text-(--theme-gray900)"><span class="text-[15px] font-semibold text-(--theme-gray900)">B</span></span><div class="min-w-0 flex-1 overflow-hidden"><div id="donator-home-popular-live-top-50-card-1-title-output" class="donator-home-line-clamp-1 mb-1 break-all text-sm leading-normal font-bold text-(--theme-text-dark)">부천 근성테스트 세상에서 제일 매운 신길동짬뽕</div><div id="donator-home-popular-live-top-50-card-1-creator-name-output" class="donator-home-line-clamp-1 text-sm leading-4 font-light text-(--theme-gray)">BJ 김여포</div></div></div></article><article id="donator-home-popular-live-top-50-card-2-output" class="flex h-full flex-col gap-2.5"><a id="donator-home-popular-live-top-50-card-2-link" class="donator-home-card-thumb relative flex aspect-video w-full overflow-hidden bg-black/10" href="#" rel="noreferrer noopener" target="_blank"><img alt="원큐 뱀피르 월요일 마지막 영묘신화 뽑아보자    &quot;7월22일 일본신섭 오픈&quot;    #원큐 #oneq #뱀피르 #VAMPIR  2026  07/20" class="size-full flex-1 object-cover" src="https://img.youtube.com/vi/fSB2K4e-QyY/hqdefault.jpg"><div class="absolute left-2 top-2 z-10 flex items-center gap-1"><img alt="유튜브 라이브" class="h-5 w-auto" src="https://stg.tooth.one/donator/image/home/live-youtube.png"><span id="donator-home-popular-live-top-50-card-2-viewer-count-output" class="rounded-sm bg-black/80 px-1.5 py-0.5 text-[13px] leading-[19.5px] font-medium text-white">시청자 836명</span></div></a><div class="flex items-start gap-3"><span class="inline-flex size-10 items-center justify-center overflow-hidden rounded-full bg-[#e8edf2] text-(--theme-gray900)"><span class="text-[15px] font-semibold text-(--theme-gray900)">원</span></span><div class="min-w-0 flex-1 overflow-hidden"><div id="donator-home-popular-live-top-50-card-2-title-output" class="donator-home-line-clamp-1 mb-1 break-all text-sm leading-normal font-bold text-(--theme-text-dark)">원큐 뱀피르 월요일 마지막 영묘신화 뽑아보자    "7월22일 일본신섭 오픈"    #원큐 #oneq #뱀피르 #VAMPIR  2026  07/20</div><div id="donator-home-popular-live-top-50-card-2-creator-name-output" class="donator-home-line-clamp-1 text-sm leading-4 font-light text-(--theme-gray)">원큐</div></div></div></article><article id="donator-home-popular-live-top-50-card-3-output" class="flex h-full flex-col gap-2.5"><a id="donator-home-popular-live-top-50-card-3-link" class="donator-home-card-thumb relative flex aspect-video w-full overflow-hidden bg-black/10" href="#" rel="noreferrer noopener" target="_blank"><img alt="비트코인 사또 [결국 떨어지는거 누가모름?]7월 개인대회 더보기란 링크트리확인! BitCoin Korea No.1" class="size-full flex-1 object-cover" src="https://img.youtube.com/vi/yZELnEuFfk8/hqdefault.jpg"><div class="absolute left-2 top-2 z-10 flex items-center gap-1"><img alt="유튜브 라이브" class="h-5 w-auto" src="https://stg.tooth.one/donator/image/home/live-youtube.png"><span id="donator-home-popular-live-top-50-card-3-viewer-count-output" class="rounded-sm bg-black/80 px-1.5 py-0.5 text-[13px] leading-[19.5px] font-medium text-white">시청자 459명</span></div></a><div class="flex items-start gap-3"><span class="inline-flex size-10 items-center justify-center overflow-hidden rounded-full bg-[#e8edf2] text-(--theme-gray900)"><span class="text-[15px] font-semibold text-(--theme-gray900)">스</span></span><div class="min-w-0 flex-1 overflow-hidden"><div id="donator-home-popular-live-top-50-card-3-title-output" class="donator-home-line-clamp-1 mb-1 break-all text-sm leading-normal font-bold text-(--theme-text-dark)">비트코인 사또 [결국 떨어지는거 누가모름?]7월 개인대회 더보기란 링크트리확인! BitCoin Korea No.1</div><div id="donator-home-popular-live-top-50-card-3-creator-name-output" class="donator-home-line-clamp-1 text-sm leading-4 font-light text-(--theme-gray)">스트리머 사또</div></div></div></article></div><div class="mt-4 flex w-full items-center gap-4"><span class="h-px flex-1 bg-black/10"></span><a id="donator-home-popular-live-top-50-more-button" class="inline-flex items-center gap-0.5 rounded-full border border-black/10 px-3 py-1.5 text-[13px] leading-[19.5px] font-normal text-(--theme-gray900)" href="#">더보기<svg fill="none" height="12" viewBox="0 0 512 512" width="12"><path d="M112 184l144 144 144-144" stroke="currentColor" stroke-linecap="square" stroke-miterlimit="10" stroke-width="48"></path></svg></a><span class="h-px flex-1 bg-black/10"></span></div></section></div></div></div></div></div></section></main><footer class="relative border-none bg-(--theme-light) px-5 py-5 pt-10 text-[12px] font-normal leading-[1.6666666667] text-(--theme-gray) md:mt-10 md:bg-transparent md:px-0 md:py-0 md:pt-0"><div class="md:h-6.25 md:overflow-hidden md:text-right"><div class="inline-flex flex-wrap items-center gap-2 md:flex-nowrap md:justify-end md:gap-0"><button type="button" class="inline-flex h-7 items-center gap-2 rounded-md border-0 bg-(--theme-light) px-3 text-[12px] text-(--theme-gray900) md:grid md:h-6.25 md:w-31.25 md:grid-cols-[20px_8px_31.125px_20px_13.875px] md:gap-0 md:rounded-[3.6px] md:px-4 md:leading-6.25 md:text-[#030303]"><img alt="한국어" class="size-5 md:col-start-1 md:shrink-0" src="https://stg.tooth.one/donator/image/common/flag-korea.svg"><span class="md:col-start-3 md:w-[31.125px] md:text-left">한국어</span><svg class="md:col-start-4" fill="currentColor" height="20" viewBox="0 0 48 48" width="20"><path d="M33.18 17.18 24 26.34l-9.18-9.16L12 20l12 12 12-12z" transform="rotate(180 24 24)"></path></svg></button><span aria-hidden="true" class="text-(--theme-gray) md:inline-flex md:h-3.5 md:w-[13.6875px] md:items-center md:justify-center md:leading-3.5">|</span><button type="button" class="inline-flex h-7 items-center gap-2 rounded-md border-0 bg-(--theme-light) px-3 text-[12px] text-(--theme-gray900) md:grid md:h-6.25 md:w-[117.25px] md:grid-cols-[1fr_20px] md:gap-0 md:rounded-[3.6px] md:px-4 md:leading-6.25 md:text-[#030303]"><span class="md:text-left">패밀리 사이트</span><svg class="md:justify-self-end" fill="currentColor" height="20" viewBox="0 0 48 48" width="20"><path d="M33.18 17.18 24 26.34l-9.18-9.16L12 20l12 12 12-12z"></path></svg></button></div></div><div class="mt-4 space-y-0 md:mt-0 md:pr-65"><div>(주)투네이션</div><div>경기 성남시 분당구 황새울로335번길 10 멜로즈프라자 2층 | 대표 : 추연성</div><div>사업자 등록번호 : 261-81-13002 | 통신판매업 신고번호 : 제2018-성남수정-0240 | 문의 : toonation@toonation.co.kr</div></div><div class="mt-5 space-y-0 md:pr-65"><div class="flex flex-wrap gap-x-1 gap-y-1"><div class="flex items-center"><a href="#" class="text-[12px] text-(--theme-gray)">크리에이터 이용약관</a><span class="px-1 text-(--theme-gray)">|</span></div><div class="flex items-center"><a href="#" class="text-[12px] text-(--theme-gray)">유료서비스 이용약관</a><span class="px-1 text-(--theme-gray)">|</span></div><div class="flex items-center"><a href="#" class="text-[12px] donator-footer-policy-highlight font-bold">개인정보 처리방침</a><span class="px-1 text-(--theme-gray)">|</span></div><div class="flex items-center"><a href="#" class="text-[12px] donator-footer-policy-highlight font-bold">청소년보호정책</a><span class="px-1 text-(--theme-gray)">|</span></div><div class="flex items-center"><a href="#" class="text-[12px] text-(--theme-gray)" rel="noreferrer noopener" target="_blank">수수료 안내</a></div></div><div class="flex flex-wrap gap-x-1 gap-y-1"><div class="flex items-center"><a href="#" rel="noreferrer noopener" target="_blank">YouTube API 서비스 이용약관</a><span class="px-1 text-(--theme-gray)">|</span></div><div class="flex items-center"><a href="#" rel="noreferrer noopener" target="_blank">YouTube 서비스 이용약관</a><span class="px-1 text-(--theme-gray)">|</span></div><div class="flex items-center"><a href="#" rel="noreferrer noopener" target="_blank">구글 개인정보 처리방침</a><span class="px-1 text-(--theme-gray)">|</span></div><div class="flex items-center"><a href="#" rel="noreferrer noopener" target="_blank">구글 계정 접근 권한 해제하기</a></div></div></div><div class="mt-5 space-y-0 md:pr-65"><div>Toonation은 YouTube 및 Twitch의 서드파티 사이트로 YouTube 및 Twitch에서 운영하는 사이트가 아닙니다.</div><div>'YouTube' 및 '유튜브'는 YouTube, LLC의 등록상표이며 'Twitch' 및 '트위치'는 Twitch Interactive, Inc.의 등록상표입니다.</div><div>투네이션 이용 시 <a href="#" rel="noreferrer noopener" target="_blank"><span class="underline">"YouTube 서비스 약관"</span></a>에 동의한 것으로 여깁니다.</div></div><div class="mt-5 md:pr-65">© 2016. <strong>Toonation Co., Ltd.</strong> All rights reserved.</div><div class="mt-8 flex flex-wrap gap-2 md:absolute md:right-12.5 md:top-[216.296875px] md:mt-0 md:grid md:grid-cols-4 md:gap-2"><a aria-label="Twitter" class="flex size-12 items-center justify-center rounded-full border border-black/10 bg-(--theme-light)" href="#" rel="noreferrer noopener" target="_blank"><img alt="Twitter" class="size-7.5" src="https://stg.tooth.one/donator/image/common/ic-twitter.svg"></a><a aria-label="Instagram" class="flex size-12 items-center justify-center rounded-full border border-black/10 bg-(--theme-light)" href="#" rel="noreferrer noopener" target="_blank"><img alt="Instagram" class="size-7.5" src="https://stg.tooth.one/donator/image/common/ic-instagram.svg"></a><a aria-label="YouTube" class="flex size-12 items-center justify-center rounded-full border border-black/10 bg-(--theme-light)" href="#" rel="noreferrer noopener" target="_blank"><img alt="YouTube" class="size-7.5" src="https://stg.tooth.one/donator/image/common/ic-youtube.svg"></a><a aria-label="Notion" class="flex size-12 items-center justify-center rounded-full border border-black/10 bg-(--theme-light)" href="#" rel="noreferrer noopener" target="_blank"><img alt="Notion" class="size-7.5" src="https://stg.tooth.one/donator/image/common/ic-notion.svg"></a></div></footer></div></div></div></div>
+<script>
+(function(){
+  // 같은 사이트의 게임 페이지 (상대 경로라 Vercel · GitHub Pages 어디서든 동작)
+  var GAME_URL='game.html'+location.search; // ?admin=1 등 쿼리는 게임으로 그대로 전달
+  var homePage=document.getElementById('donator-home-page');
+  var landBtn=document.getElementById('donator-side-menu-toonaland-button');
+  var homeBtn=document.getElementById('donator-side-menu-home-button');
+  // 검색창 · 메인 배너 아래(홈 본문 자리)에 게임 영역을 한 번만 만들어 둠
+  var land=document.createElement('section');
+  land.id='toonaland-section';
+  land.className='toonaland-section';
+  land.hidden=true;
+  land.innerHTML='<h2 class="toonaland-title">투네 랜드</h2>';
+  homePage.parentNode.insertBefore(land,homePage.nextSibling);
+  var frame=null;
+  function setActive(btn){document.querySelectorAll('[id^="donator-side-menu-"]').forEach(function(b){b.style.color='';});if(btn)btn.style.color='#519cff';}
+  function showLand(){
+    // 게임은 처음 열 때만 불러오고, 홈 ↔ 투네 랜드를 오가도 진행 상태를 유지
+    if(!frame){
+      frame=document.createElement('iframe');
+      frame.id='toonaland-frame';
+      frame.src=GAME_URL;
+      frame.title='투네 랜드';
+      frame.allow='autoplay; fullscreen; clipboard-write';
+      frame.allowFullscreen=true;
+      land.appendChild(frame);
+    }
+    homePage.hidden=true; land.hidden=false;
+    setActive(landBtn); history.replaceState(null,'','#toonaland'); window.scrollTo(0,0);
+  }
+  function showHome(){
+    land.hidden=true; homePage.hidden=false;
+    setActive(homeBtn); history.replaceState(null,'',location.pathname+location.search);
+  }
+  landBtn.addEventListener('click',showLand);
+  homeBtn.addEventListener('click',showHome);
+  if(location.hash==='#toonaland')showLand();
+})();</script>
+</body>
 </html>
