@@ -77,8 +77,9 @@ export const RENDER = {
   maxDpr: 1.5,
   lowDpr: 1.0,
   minimapMaxSize: 200,
-  cameraTarget: [0, 0.45, 0] as [number, number, number],
-  cameraRadius: 4.6,
+  // 기계 위 간판(y 2.05~2.53)과 뽑기판이 함께 보이도록 시선을 살짝 올리고 뒤로 물렸습니다
+  cameraTarget: [0, 1.05, 0] as [number, number, number],
+  cameraRadius: 5.5,
   cameraMinDistance: 3.2,
   cameraMaxDistance: 6.5,
   cameraPolar: [Math.PI * 0.28, Math.PI * 0.52] as [number, number],
