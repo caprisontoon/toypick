@@ -167,7 +167,7 @@ export default function App() {
           shadows={quality === 'high'}
           dpr={quality === 'high' ? Math.min(window.devicePixelRatio, RENDER.maxDpr) : RENDER.lowDpr}
           camera={{
-            position: [0, 1.7, RENDER.cameraRadius],
+            position: [0, 2.2, RENDER.cameraRadius],
             fov: 45,
             near: 0.1,
             far: 60,
